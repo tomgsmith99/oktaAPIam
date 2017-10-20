@@ -1,0 +1,254 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset='utf-8' />
+	<meta name='viewport' content='width=device-width, initial-scale=1' />
+
+	<!-- ******* TITLE OF PAGE ******** -->
+
+	<title>Okta platform demo: home</title>
+
+	<!-- ******* CSS *******************-->
+	
+	<link rel = 'stylesheet' href = 'https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.1.0/css/okta-sign-in.min.css'/>
+
+	<link rel = 'stylesheet' href = 'https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.1.0/css/okta-theme.css'/>
+
+	<!-- BOOTSTRAP CSS -->
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+	<!-- ******* JAVASCRIPT *******************-->		
+
+<script
+  src="https://code.jquery.com/jquery-3.2.1.min.js"
+  integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+  crossorigin="anonymous"></script>
+
+	<script src = 'https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.1.0/js/okta-sign-in.min.js'></script>
+				
+	<!-- *** Initialize the Okta widget ***** -->
+
+	<script>
+
+	window.onload = function() {
+
+		var oktaSignIn = new OktaSignIn({
+			baseUrl: 'https://partnerpoc.oktapreview.com',
+			logo: 'http://oauth2.atkodemo.com/images/atkodemo/themes/default/logo.png',
+			features: {
+				multiOptionalFactorEnroll: true,
+				smsRecovery: true
+			},
+
+			// OIDC options
+			clientId: '0oachfirg561HfAJ80h7',
+			redirectUri: 'http://localhost:3090',
+
+			authScheme: 'OAUTH2',
+			authParams: {
+				// responseType: 'id_token',
+				responseType: 'token',
+
+				responseMode: 'okta_post_message',
+				scopes: [
+					'openid',
+					'email',
+					'profile',
+					'address',
+					'phone'
+				]
+			}
+		});
+
+		oktaSignIn.renderEl(
+			{ el: '#oktaWidget'},
+			function (res) {
+
+				console.log("the res.status is: " + res.status);
+
+				if (res.status == "SUCCESS") {
+
+					$("#oktaWidget").hide();
+					
+					console.log("authentication successful.");
+					console.log("user now has an active session.");
+					console.log("access_token:" + res.accessToken);
+					// console.log("id_token:" + res.idToken);
+					console.log("claims:");
+					console.dir(res.claims);
+
+					console.dir(res);
+
+					showGoodLink(res.accessToken);
+
+				}
+				else {
+					console.log("the user was not authenticated.");
+					console.log("the error is: " + res.status);
+				}
+			}
+		);
+
+			console.log("checking session...");
+	/************************************/
+	// Check for an Okta session
+	// and update menu accordingly
+	/************************************/
+	oktaSignIn.session.exists(function (exists) {
+		if (exists) {
+			console.log("there is an active session.");
+			console.log("---------------------------");
+			// getting the fname from the server instead of local storage
+			// to accomodate the use-case where a new user registers and
+			// then gets redirected to this page. There's probably a better
+			// way.
+			oktaSignIn.session.get(function (res) {
+				$.ajax({
+		            type: "GET",
+		            dataType: 'json',
+		            url: "https://partnerpoc.oktapreview.com/api/v1/users/" + res.userId,
+
+		            xhrFields: {
+		                withCredentials: true
+		            },
+		            success: function (data) {
+		            	console.dir(data);
+		            	console.log("the given_name is: " + data.profile.firstName);
+		                localStorage.setItem("given_name", data.profile.firstName);
+		            },
+		            error: function (textStatus, errorThrown) {
+		                console.log('error retrieving session: ' + JSON.stringify(textStatus));
+		                console.log(errorThrown);
+		            },
+		            async: true
+	        	});
+	  		});
+		}
+		else {
+			console.log("there is not an active session.");
+			console.log("-------------------------------");
+			setMenu("anon");
+		}
+	});
+
+	};
+
+	</script>
+
+	<!-- *** Render the Okta widget ***** -->
+		
+	<script>
+
+	</script>
+
+	<script>
+	function signout() {
+		console.log("attempting to sign out...");
+	    $.ajax({
+	        type: "DELETE",
+	        dataType: 'json',
+	        url: "https://tomco.okta.com/api/v1/sessions/me",
+	        xhrFields: {
+	            withCredentials: true
+	        },
+	        success: function (data) {
+	            console.log('success deleting session');
+	            sessionStorage.removeItem('sessionToken');
+	        },
+	        error: function (textStatus, errorThrown) {
+	            console.log('error deleting session: ' + JSON.stringify(textStatus));
+	            console.log(errorThrown);
+	        },
+	        async: true
+	    });
+		setMenu("anon");
+	}
+	</script>
+
+	<script>
+
+		function showGoodLink(accessToken) {
+			var html = '<a target = "_blank" href = "http://testokta03.cloudhub.io/planets?access_token=';
+			html += accessToken;
+			html += '">Show me the planets</a>';
+
+			$("#goodLink").html(html);
+		}
+
+	</script>
+
+</head>
+
+<body>
+<!-- Wrapper -->
+<div id="container">
+
+	<div class="container">
+		<div class="header clearfix">
+			<nav>
+				<ul class="nav nav-pills pull-right">
+					<li role="presentation" class="active"><a href="/">Home</a></li>
+					<li role="presentation"><a href="register">Register</a></li>
+				</ul>
+			</nav>
+			
+			<h3 class="text-muted">Mulesoft + Okta</h3>
+		</div>
+
+		<div class="jumbotron">
+			<div class="row" style="vertical-align: top">
+				<div class="col-md-6">
+
+					<div id = "oktaWidget"></div>
+
+					<div id = "authInstrux">
+
+<!-- 						<p>Sign in if you already have an account, or register to sign up for a new account.</p>
+
+						<p><a class="btn btn-success" href="register" role="button">Register</a></p>
+ -->
+					</div>
+
+
+<!-- 					<div id = "signoutDiv"><p style = "text-align: center"><a class="btn btn-success" href="#" id = "signout" role="button">sign out</a></p></div>
+ -->
+				</div>
+
+				<div class="col-md-6">
+
+					<p class="lead">User is trying to get list of planets from an API protected by Mulesoft.</p>
+
+					<p>Authenticate vs. Okta to get an access token to get access to the API endpoint</p>
+
+<div class = "panel panel-warning">
+	<div class = "panel-heading">
+		Plain link, w/o access token
+	</div>
+	<div class = "panel-body">
+		<a href= "http://testokta03.cloudhub.io/planets" target = "_blank">Show me the planets</a>
+	</div>
+</div>
+
+<div class = "panel panel-success">
+	<div class = "panel-heading">
+		Link with access token
+	</div>
+	<div class = "panel-body">
+		<div id = "goodLink"></div>
+	</div>
+</div>
+
+				</div>
+
+		</div>
+
+	</div>
+
+	<div id="oktaWidget"></div>
+
+</div>
+
+</body>
+</html>
