@@ -7,7 +7,6 @@ module.exports = function (app) {
 		fs.readFile(__base + 'index.html', 'utf8', (error, webPage) => {
 			if (error) { throw new Error(error) }
 			else {
-				// webPage = webPage.replace(/{{experian_proxy}}/g, config.okta.experian_proxy);
 				res.send(webPage);
 			}
 		});

@@ -27,7 +27,7 @@
   crossorigin="anonymous"></script>
 
 	<script src = 'https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.1.0/js/okta-sign-in.min.js'></script>
-				
+
 	<!-- *** Initialize the Okta widget ***** -->
 
 	<script>
@@ -129,7 +129,6 @@
 		else {
 			console.log("there is not an active session.");
 			console.log("-------------------------------");
-			setMenu("anon");
 		}
 	});
 
@@ -138,10 +137,6 @@
 	</script>
 
 	<!-- *** Render the Okta widget ***** -->
-		
-	<script>
-
-	</script>
 
 	<script>
 	function signout() {
@@ -194,8 +189,7 @@
 			<nav>
 				<ul class="nav nav-pills pull-right">
 					<li role="presentation" class="active"><a href="/">Home</a></li>
-<!-- 					<li role="presentation"><a href="register">Register</a></li>
- -->				</ul>
+				</ul>
 			</nav>
 			
 			<h3 class="text-muted">Mulesoft + Okta</h3>

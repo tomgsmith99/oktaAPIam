@@ -1,0 +1,18 @@
+{
+  "name": "okta-mulesoft",
+  "version": "1.0.0",
+  "description": "oauth integration between okta and mulesoft",
+  "main": "app.js",
+  "scripts": {
+      "start": "node app.js"
+  },
+  "engines": {
+    "node": "6.11.3"
+  },
+  "author": "tom.smith@okta.com",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2",
+    "fs": "0.0.1-security"
+  }
+}
