@@ -170,9 +170,13 @@
 	<script>
 
 		function showGoodLink(accessToken) {
-			var html = '<a target = "_blank" href = "http://testokta03.cloudhub.io/planets?access_token=';
-			html += accessToken;
-			html += '">Show me the planets</a>';
+
+			var shortToken = accessToken.substring(0,6);
+
+			var link = "http://testokta03.cloudhub.io/planets?access_token=";
+
+			var html = '<a target = "_blank" href = "' + link + accessToken;
+			html += '">' + link + shortToken + '...</a>';
 
 			$("#goodLink").html(html);
 		}
@@ -190,8 +194,8 @@
 			<nav>
 				<ul class="nav nav-pills pull-right">
 					<li role="presentation" class="active"><a href="/">Home</a></li>
-					<li role="presentation"><a href="register">Register</a></li>
-				</ul>
+<!-- 					<li role="presentation"><a href="register">Register</a></li>
+ -->				</ul>
 			</nav>
 			
 			<h3 class="text-muted">Mulesoft + Okta</h3>
@@ -203,50 +207,43 @@
 
 					<div id = "oktaWidget"></div>
 
-					<div id = "authInstrux">
-
-<!-- 						<p>Sign in if you already have an account, or register to sign up for a new account.</p>
-
-						<p><a class="btn btn-success" href="register" role="button">Register</a></p>
- -->
-					</div>
-
-
-<!-- 					<div id = "signoutDiv"><p style = "text-align: center"><a class="btn btn-success" href="#" id = "signout" role="button">sign out</a></p></div>
- -->
 				</div>
 
 				<div class="col-md-6">
 
 					<p class="lead">User is trying to get list of planets from an API protected by Mulesoft.</p>
 
-					<p>Authenticate vs. Okta to get an access token to get access to the API endpoint</p>
+					<p>Authenticate vs. Okta to get an access token to get access to the API endpoint.</p>
 
-<div class = "panel panel-warning">
-	<div class = "panel-heading">
-		Plain link, w/o access token
-	</div>
-	<div class = "panel-body">
-		<a href= "http://testokta03.cloudhub.io/planets" target = "_blank">Show me the planets</a>
-	</div>
-</div>
+					<div class = "panel panel-warning">
+						<div class = "panel-heading">
+							Plain link, w/o access token
+						</div>
+						<div class = "panel-body">
+							<a href= "http://testokta03.cloudhub.io/planets" target = "_blank">http://testokta03.cloudhub.io/planets</a>
+						</div>
+					</div>
 
-<div class = "panel panel-success">
-	<div class = "panel-heading">
-		Link with access token
-	</div>
-	<div class = "panel-body">
-		<div id = "goodLink"></div>
-	</div>
-</div>
+					<div class = "panel panel-success">
+						<div class = "panel-heading">
+							Link with access token
+						</div>
+						<div class = "panel-body">
+							<div id = "goodLink">
+								To see the link, log in:
+								<ul>
+									<li>carl.sagan</li>
+									<li>Venus123!</li>
+								</ul>
+							</div>
+						</div>
+					</div>
 
 				</div>
 
 		</div>
 
 	</div>
-
-	<div id="oktaWidget"></div>
 
 </div>
 
