@@ -18,7 +18,6 @@
 	<!-- BOOTSTRAP CSS -->
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-
 	<!-- ******* JAVASCRIPT *******************-->		
 
 <script
@@ -36,30 +35,40 @@
 
 		var oktaSignIn = new OktaSignIn({
 			baseUrl: 'https://partnerpoc.oktapreview.com',
-			logo: 'http://oauth2.atkodemo.com/images/atkodemo/themes/default/logo.png',
+			// logo: 'http://oauth2.atkodemo.com/images/atkodemo/themes/default/logo.png',
 			features: {
 				multiOptionalFactorEnroll: true,
 				smsRecovery: true
 			},
 
 			// OIDC options
-			clientId: '0oachfirg561HfAJ80h7',
-			redirectUri: 'https://okta-mulesoft.herokuapp.com',
+			clientId: '0oackbggxnLe1jjl00h7',
+
+			// redirectUri: 'https://okta-mulesoft.herokuapp.com',
+			// redirectUri: '{{redirect_uri}}',
+			redirectUri: 'http://localhost:8888/mulesoft',
+
 
 			username: 'carl.sagan',
 
 			authScheme: 'OAUTH2',
 			authParams: {
-				// responseType: 'id_token',
 				responseType: 'token',
 
+				issuer: 'https://partnerpoc.oktapreview.com/oauth2/ausce8ii5wBzd0zvQ0h7',
+				authorizeUrl: 'https://partnerpoc.oktapreview.com/oauth2/ausce8ii5wBzd0zvQ0h7/v1/authorize',
+
 				responseMode: 'okta_post_message',
+				// scopes: [
+				// 	'openid',
+				// 	'email',
+				// 	'profile',
+				// 	'address',
+				// 	'phone'
+				// ]
+
 				scopes: [
-					'openid',
-					'email',
-					'profile',
-					'address',
-					'phone'
+					'api:read:silver', 'api:read:gold'
 				]
 			}
 		});
@@ -83,8 +92,9 @@
 
 					console.dir(res);
 
-					showGoodLink(res.accessToken);
+					updateLinks(res.accessToken);
 
+					$("#introspectButtonDiv").show();
 				}
 				else {
 					console.log("the user was not authenticated.");
@@ -108,25 +118,25 @@
 			// way.
 			oktaSignIn.session.get(function (res) {
 				$.ajax({
-		            type: "GET",
-		            dataType: 'json',
-		            url: "https://partnerpoc.oktapreview.com/api/v1/users/" + res.userId,
+					type: "GET",
+					dataType: 'json',
+					url: "https://partnerpoc.oktapreview.com/api/v1/users/" + res.userId,
 
-		            xhrFields: {
-		                withCredentials: true
-		            },
-		            success: function (data) {
-		            	console.dir(data);
-		            	console.log("the given_name is: " + data.profile.firstName);
-		                localStorage.setItem("given_name", data.profile.firstName);
-		            },
-		            error: function (textStatus, errorThrown) {
-		                console.log('error retrieving session: ' + JSON.stringify(textStatus));
-		                console.log(errorThrown);
-		            },
-		            async: true
-	        	});
-	  		});
+					xhrFields: {
+						withCredentials: true
+					},
+					success: function (data) {
+						console.dir(data);
+						console.log("the given_name is: " + data.profile.firstName);
+						localStorage.setItem("given_name", data.profile.firstName);
+					},
+					error: function (textStatus, errorThrown) {
+						console.log('error retrieving session: ' + JSON.stringify(textStatus));
+						console.log(errorThrown);
+					},
+					async: true
+				});
+			});
 		}
 		else {
 			console.log("there is not an active session.");
@@ -143,23 +153,23 @@
 	<script>
 	function signout() {
 		console.log("attempting to sign out...");
-	    $.ajax({
-	        type: "DELETE",
-	        dataType: 'json',
-	        url: "https://tomco.okta.com/api/v1/sessions/me",
-	        xhrFields: {
-	            withCredentials: true
-	        },
-	        success: function (data) {
-	            console.log('success deleting session');
-	            sessionStorage.removeItem('sessionToken');
-	        },
-	        error: function (textStatus, errorThrown) {
-	            console.log('error deleting session: ' + JSON.stringify(textStatus));
-	            console.log(errorThrown);
-	        },
-	        async: true
-	    });
+		$.ajax({
+			type: "DELETE",
+			dataType: 'json',
+			url: "https://tomco.okta.com/api/v1/sessions/me",
+			xhrFields: {
+				withCredentials: true
+			},
+			success: function (data) {
+				console.log('success deleting session');
+				sessionStorage.removeItem('sessionToken');
+			},
+			error: function (textStatus, errorThrown) {
+				console.log('error deleting session: ' + JSON.stringify(textStatus));
+				console.log(errorThrown);
+			},
+			async: true
+		});
 		setMenu("anon");
 	}
 	</script>
@@ -177,6 +187,52 @@
 
 			$("#goodLink").html(html);
 		}
+
+		function updateLinks(accessToken) {
+
+			var shortToken = accessToken.substring(0,6);
+
+			var planetsLink = '<a target="_blank" href="http://planets-okta.cloudhub.io/?access_token=' + accessToken + '">http://planets-okta.cloudhub.io/?access_token=' + shortToken + '...</a>';
+
+			$("#planetsLink").html(planetsLink);
+
+			// var link = "http://testokta03.cloudhub.io/planets?access_token=";
+
+			// var html = '<a target = "_blank" href = "' + link + accessToken;
+			// html += '">' + link + shortToken + '...</a>';
+
+			// $("#goodLink").html(html);
+		}
+
+		// function introspectToken() {
+
+		// 	$("#introspectResults").html("the button was clicked!");
+
+		// 	$.post( "/introspect", { func: "getNameAndTime" }, function( data ) {
+		// 		console.log( data.name ); // John
+		// 		console.log( data.time ); // 2pm
+		// 	}, "json");
+
+		// 	// $.ajax({
+		// 	// 	type: "POST",
+		// 	// 	dataType: 'json',
+		// 	// 	url: "/introspect",
+		// 	// 	xhrFields: {
+		// 	// 		withCredentials: true
+		// 	// 	},
+
+
+
+		// 		// success: function (data) {
+		// 		// 	console.log('this is the data: ' + data);
+		// 		// },
+		// 		// error: function (textStatus, errorThrown) {
+		// 		// 	console.log('error: ' + JSON.stringify(textStatus));
+		// 		// 	console.log(errorThrown);
+		// 		// },
+		// 		async: true
+		// 	});
+		// }
 
 	</script>
 
@@ -197,41 +253,66 @@
 			<h3 class="text-muted">Mulesoft + Okta</h3>
 		</div>
 
-		<div class="jumbotron">
+		<div class="well" style="background-color: rgb(234, 239, 247)">
 			<div class="row" style="vertical-align: top">
 				<div class="col-md-6" style="vertical-align: top">
 
+					<p>Welcome to the Planets API, a demonstration of an integration between Okta and Mulesoft. Mulesoft is protecting the Planets API using Okta's OAuth2-based authentication and authorization.</p>
+
+					<p>Try authenticating (or not) as one of the subscribers to see how access is granted.</p>
+
 					<div id = "oktaWidget"></div>
 
+					<div id = "introspectButtonDiv" style="display: none">
+						<button type="button" class="btn btn-success" onclick="introspectToken()">Introspect token</button>
+					</div>
+
+					<div id = "introspectResults"></div>
 				</div>
 
 				<div class="col-md-6">
 
-					<p class="lead">User is trying to get list of planets from an API protected by Mulesoft.</p>
-
-					<p>Authenticate vs. Okta to get an access token to get access to the API endpoint.</p>
-
-					<div class = "panel panel-warning">
+					<div class = "panel panel-default">
 						<div class = "panel-heading">
-							Plain link, w/o access token
+							SILVER ACCESS: A list of the planets
 						</div>
-						<div class = "panel-body">
-							<a href= "http://testokta03.cloudhub.io/planets" target = "_blank">http://testokta03.cloudhub.io/planets</a>
+						<div class = "panel-body" id = "planetsLink">
+							<a href= "http://planets-okta.cloudhub.io" target = "_blank">http://planets-okta.cloudhub.io</a>
 						</div>
 					</div>
 
-					<div class = "panel panel-success">
+					<div class = "panel panel-default">
 						<div class = "panel-heading">
-							Link with access token
+							Silver-level user
+						</div>
+						<div class = "panel-body">
+							<ul>
+								<li>carl.sagan</li>
+								<li>Venus123!</li>
+							</ul>
+						</div>
+					</div>
+
+					<div class = "panel panel-warning">
+						<div class = "panel-heading">
+							GOLD Access: A list of (selected) moons
 						</div>
 						<div class = "panel-body">
 							<div id = "goodLink">
-								To see the link, log in:
-								<ul>
-									<li>carl.sagan</li>
-									<li>Venus123!</li>
-								</ul>
+								<a href= "http://moons-okta.cloudhub.io" target = "_blank">http://moons-okta.cloudhub.io</a>
 							</div>
+						</div>
+					</div>
+
+					<div class = "panel panel-warning">
+						<div class = "panel-heading">
+							Gold-level user
+						</div>
+						<div class = "panel-body">
+							<ul>
+								<li>jodi.foster</li>
+								<li>Venus123!</li>
+							</ul>
 						</div>
 					</div>
 

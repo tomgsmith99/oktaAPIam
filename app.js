@@ -3,6 +3,8 @@
 ////////////////////////////////////////////////////
 global.__base = __dirname + '/';
 
+var config = require(__base + ".env.js");
+
 const express = require('express');
 
 var fs = require('fs');
