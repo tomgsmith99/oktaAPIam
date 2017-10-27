@@ -1,5 +1,9 @@
 var config = require(__base + '.env.js');
 
+var request = require("request");
+
+var bodyParser = require('body-parser');
+
 var fs = require('fs');
 
 var request = require('request');
@@ -12,9 +16,8 @@ module.exports = function (app) {
 			if (error) { throw new Error(error) }
 			else {
 
-				console.log("the redirect_uri is: " + config.okta.redirect_uri);
-
 				webPage = webPage.replace(/{{redirect_uri}}/g, config.okta.redirect_uri);
+				webPage = webPage.replace(/{{oktaTenant}}/g, config.oktaTenant);
 
 				res.send(webPage);
 			}
@@ -23,38 +26,25 @@ module.exports = function (app) {
 
 	app.post('/introspect', function(req, res, next) {
 
-		console.log("the request is: " + req);
+		var accessToken = req.body.accessToken;
 
-		res.send("this is some data");
+		var options = { method: 'POST',
+		  url: 'https://partnerpoc.oktapreview.com/oauth2/ausce8ii5wBzd0zvQ0h7/v1/introspect',
+		  qs: { token: accessToken },
+		  headers: 
+		   {
+		     'cache-control': 'no-cache',
+		     authorization: 'Basic MG9hY2UzdDhyYlpUcnA4amkwaDc6cXZNcjl5ODdZa19jTEdWZnJvdjBUU1E5dGpGMmJfb0lFX0MwSFlxNQ==',
+		     accept: 'application/json',
+		     'content-type': 'application/x-www-form-urlencoded' } };
 
-		// var email = req.body.firstName + "." + req.body.surName + getRandomInt(1, 10000) + "@mailinator.com";
+		request(options, function (error, response, body) {
+			if (error) throw new Error(error);
 
-		// const options = {
-		// 	url: 'https://' + config.okta.reg.tenantName + '.' + config.okta.reg.domain + '/api/v1/users',
-		// 	qs: { activate: 'true' },
-		// 	method: 'POST',
-		// 	headers: {
-		// 			'cache-control': 'no-cache',
-		// 			authorization: 'SSWS ' + config.okta.reg.api_key,
-		// 			'content-type': 'application/json',
-		// 			accept: 'application/json'
-		// 	},
-		// 	body: { profile: 
-		// 			{ firstName: req.body.firstName,
-		// 				lastName: req.body.surName,
-		// 				email: email,
-		// 				login: email
-		// 			}
-		// 	},
-		// 	json: true
-		// };
+			console.log(body);
 
-		// request(options, function (error, response, body) {
-		// 	if (error) throw new Error(error);
+			res.json(body);
+		});
 
-		// 	res.send(JSON.stringify(body));
-
-		// 	console.log(body);
-		// });
 	});
 }

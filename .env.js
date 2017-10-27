@@ -1,5 +1,7 @@
 module.exports = {
 
+	oktaTenant: "https://partnerpoc.oktapreview.com",
+
 	okta: {
 		redirect_uri: "http://localhost:3090",
 
