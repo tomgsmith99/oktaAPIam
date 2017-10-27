@@ -4,7 +4,7 @@
   "description": "oauth integration between okta and mulesoft",
   "main": "app.js",
   "scripts": {
-      "start": "node app.js"
+    "start": "node app.js"
   },
   "engines": {
     "node": "6.11.3"
@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.2",
-    "fs": "0.0.1-security"
+    "fs": "0.0.1-security",
+    "request": "^2.83.0"
   }
 }
