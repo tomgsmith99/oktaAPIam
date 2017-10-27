@@ -1,4 +1,3 @@
-
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -18,7 +17,7 @@
 	<!-- BOOTSTRAP CSS -->
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-	<!-- ******* JAVASCRIPT *******************-->		
+	<!-- ******* JAVASCRIPT *******************-->
 
 	<script src = 'https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.1.0/js/okta-sign-in.min.js'></script>
 
@@ -42,32 +41,22 @@
 			getAccessToken(window.location.hash.substring(1));
 		}
 
-		function getAccessToken(hash) {
+		// for debugging user sessions
+		checkForOktaSession();
+	};
 
-			var arr = hash.split("&");
+	</script>
 
-			// key/value pair
-			var kvp = arr[0].split("=");
+	<script>
 
-			var accessToken = kvp[1];
-
-			console.log("accessToken: " + accessToken);
-
-			updateLinks(accessToken);
-
-			inspectToken(accessToken);
-		}
+	function checkForOktaSession() {
 
 		// Initialize the Okta widget
-		// mainly used for debugging user sessions
-
 		var oktaSignIn = new OktaSignIn({
 			baseUrl: '{{oktaTenant}}'
 		});
 
 		// Check for an Okta session
-		// and update menu accordingly
-		/************************************/
 		oktaSignIn.session.exists(function (exists) {
 			if (exists) {
 				console.log("there is an active Okta session.");
@@ -97,82 +86,22 @@
 				console.log("-------------------------------");
 			}
 		});
-
-	};
-
-	</script>
-
-	<script>
-	function signout(callback) {
-		localStorage.removeItem("authURI");
-
-		console.log("attempting to sign out...");
-		$.ajax({
-			type: "DELETE",
-			dataType: 'json',
-			url: "https://partnerpoc.oktapreview.com/api/v1/sessions/me",
-			xhrFields: {
-				withCredentials: true
-			},
-			success: function (data) {
-				return callback(null, "success");
-
-				// console.log('success deleting session');
-			},
-			error: function (textStatus, errorThrown) {
-				// console.log('error deleting session: ' + JSON.stringify(textStatus));
-				// console.log(errorThrown);
-				return callback(null, "success");
-			},
-			async: true
-		});
 	}
 
-	function killSession(){
-		signout(function(error, status) {
-			if (error) { console.log("could not sign the user out."); }
-			else {
-				location.reload(true);
-			}
-		});
-	}
+	function getAccessToken(hash) {
 
-	</script>
+		var arr = hash.split("&");
 
-	<script>
+		// key/value pair
+		var kvp = arr[0].split("=");
 
-	function redirectToOkta(level) {
-		signout( function(error, status) {
-			if (error) { console.log("could not sign the user out."); }
-			else {
-				console.log("signed the user out successfully.");
+		var accessToken = kvp[1];
 
-				var uri = 'https://partnerpoc.oktapreview.com/oauth2/ausce8ii5wBzd0zvQ0h7/v1/authorize?response_type=token&client_id=0oackbggxnLe1jjl00h7&redirect_uri=http://localhost:3090&state=someState&nonce=someNonce&prompt=login&scope=api-read-silver';
-				
-				if (level == "gold") {
-					uri += " api-read-gold";
-				}
+		console.log("accessToken: " + accessToken);
 
-				console.log("the authentication uri is: " + uri);
+		updateLinks(accessToken);
 
-				localStorage.setItem("authURI", uri);
-
-				window.location = uri;
-			}
-		});
-	}
-
-	function updateLinks(accessToken) {
-
-		var shortToken = accessToken.substring(0,6);
-
-		var planetsLink = '<a target="_blank" href="http://okta-solarsystem.cloudhub.io/planets?access_token=' + accessToken + '">http://okta-solarsystem.cloudhub.io/planets?access_token=' + shortToken + '...</a>';
-
-		$("#planetsLink").html(planetsLink);
-
-		var moonsLink = '<a target="_blank" href="http://okta-solarsystem.cloudhub.io/moons?access_token=' + accessToken + '">http://okta-solarsystem.cloudhub.io/moons?access_token=' + shortToken + '...</a>';
-
-		$("#moonsLink").html(moonsLink);
+		inspectToken(accessToken);
 	}
 
 	function inspectToken(accessToken) {
@@ -191,36 +120,72 @@
 
 				$("#introspectResults").show();
 			}
-		 });
-	}	// function introspectToken() {
+		});
+	}
 
-		// 	$("#introspectResults").html("the button was clicked!");
+	function killSession(){
+		signout(function(error, status) {
+			if (error) { console.log("could not sign the user out."); }
+			else {
+				location.reload(true);
+			}
+		});
+	}
 
-		// 	$.post( "/introspect", { func: "getNameAndTime" }, function( data ) {
-		// 		console.log( data.name ); // John
-		// 		console.log( data.time ); // 2pm
-		// 	}, "json");
+	function redirectToOkta(level) {
+		signout( function(error, status) {
+			if (error) { console.log("could not sign the user out."); }
+			else {
+				console.log("signed the user out successfully.");
 
-		// 	// $.ajax({
-		// 	// 	type: "POST",
-		// 	// 	dataType: 'json',
-		// 	// 	url: "/introspect",
-		// 	// 	xhrFields: {
-		// 	// 		withCredentials: true
-		// 	// 	},
+				var uri = '{{oktaTenant}}/oauth2/{{authServerID}}/v1/authorize?response_type=token&client_id={{clientID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=api-read-silver';
+				
+				if (level == "gold") {
+					uri += " api-read-gold";
+				}
 
+				localStorage.setItem("authURI", uri);
 
+				window.location = uri;
+			}
+		});
+	}
 
-		// 		// success: function (data) {
-		// 		// 	console.log('this is the data: ' + data);
-		// 		// },
-		// 		// error: function (textStatus, errorThrown) {
-		// 		// 	console.log('error: ' + JSON.stringify(textStatus));
-		// 		// 	console.log(errorThrown);
-		// 		// },
-		// 		async: true
-		// 	});
-		// }
+	function signout(callback) {
+		localStorage.removeItem("authURI");
+
+		console.log("attempting to sign out...");
+		$.ajax({
+			type: "DELETE",
+			dataType: 'json',
+			url: "{{oktaTenant}}/api/v1/sessions/me",
+			xhrFields: {
+				withCredentials: true
+			},
+			success: function (data) {
+				return callback(null, "success");
+			},
+			error: function (textStatus, errorThrown) {
+				// console.log('error deleting session: ' + JSON.stringify(textStatus));
+				// console.log(errorThrown);
+				return callback(null, "success");
+			},
+			async: true
+		});
+	}
+
+	function updateLinks(accessToken) {
+
+		var shortToken = accessToken.substring(0,8);
+
+		var planetsLink = '<a target="_blank" href="{{proxy_uri}}/planets?access_token=' + accessToken + '">{{proxy_uri}}/planets?access_token=' + shortToken + '...</a>';
+
+		$("#planetsLink").html(planetsLink);
+
+		var moonsLink = '<a target="_blank" href="{{proxy_uri}}/moons?access_token=' + accessToken + '">{{proxy_uri}}/moons?access_token=' + shortToken + '...</a>';
+
+		$("#moonsLink").html(moonsLink);
+	}
 
 	</script>
 
@@ -245,7 +210,7 @@
 			<div class="row" style="vertical-align: top">
 				<div class="col-md-6" style="vertical-align: top">
 
-					<p>Welcome to the Okta's Solar System API, a demonstration of an integration between Okta and Mulesoft. Mulesoft is protecting the API using Okta's OAuth2-based authentication and authorization.</p>
+					<p>Welcome to Okta's Solar System API, a demonstration of an integration between Okta and Mulesoft. Mulesoft is protecting the API using Okta's OAuth2-based authentication and authorization.</p>
 
 					<p>Just authenticate as one of the users on the right to get started.</p>
 
@@ -270,8 +235,6 @@
 						</div>
 					</div>
 
-
-
 				</div>
 
 				<div class="col-md-6">
@@ -291,7 +254,7 @@
 									<button type="button" class="btn" onclick="redirectToOkta('silver')">authenticate</button>
 								</div>
 							</div>
-							<span id = "planetsLink"><a href= "http://okta-solarsystem.cloudhub.io/planets" target = "_blank">http://okta-solarsystem.cloudhub.io/planets</a></span>
+							<span id = "planetsLink"><a href= "{{proxy_uri}}/planets" target = "_blank">{{proxy_uri}}/planets</a></span>
 						</div>
 					</div>
 
@@ -310,7 +273,7 @@
 									<button type="button" class="btn btn-warning" onclick="redirectToOkta('gold')">authenticate</button>
 								</div>
 							</div>
-							<span id = "moonsLink"><a href= "http://okta-solarsystem.cloudhub.io/moons" target = "_blank">http://okta-solarsystem.cloudhub.io/moons</a></span>
+							<span id = "moonsLink"><a href= "{{proxy_uri}}/moons" target = "_blank">{{proxy_uri}}/moons</a></span>
 						</div>
 					</div>
 

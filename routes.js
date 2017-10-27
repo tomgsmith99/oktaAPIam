@@ -1,7 +1,5 @@
 var config = require(__base + '.env.js');
 
-var request = require("request");
-
 var bodyParser = require('body-parser');
 
 var fs = require('fs');
@@ -16,8 +14,11 @@ module.exports = function (app) {
 			if (error) { throw new Error(error) }
 			else {
 
-				webPage = webPage.replace(/{{redirect_uri}}/g, config.okta.redirect_uri);
 				webPage = webPage.replace(/{{oktaTenant}}/g, config.oktaTenant);
+				webPage = webPage.replace(/{{authServerID}}/g, config.authServerID);
+				webPage = webPage.replace(/{{clientID}}/g, config.clientID);
+				webPage = webPage.replace(/{{redirect_uri}}/g, config.redirect_uri);
+				webPage = webPage.replace(/{{proxy_uri}}/g, config.proxy_uri);
 
 				res.send(webPage);
 			}
@@ -29,12 +30,13 @@ module.exports = function (app) {
 		var accessToken = req.body.accessToken;
 
 		var options = { method: 'POST',
-		  url: 'https://partnerpoc.oktapreview.com/oauth2/ausce8ii5wBzd0zvQ0h7/v1/introspect',
+		  url: config.oktaTenant + '/oauth2/' + config.authServerID + '/v1/introspect',
 		  qs: { token: accessToken },
 		  headers: 
 		   {
 		     'cache-control': 'no-cache',
-		     authorization: 'Basic MG9hY2UzdDhyYlpUcnA4amkwaDc6cXZNcjl5ODdZa19jTEdWZnJvdjBUU1E5dGpGMmJfb0lFX0MwSFlxNQ==',
+		    authorization: 'Basic ' + config.authString,
+
 		     accept: 'application/json',
 		     'content-type': 'application/x-www-form-urlencoded' } };
 
