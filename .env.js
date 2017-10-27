@@ -6,6 +6,6 @@ module.exports = {
 	oktaTenant: "https://partnerpoc.oktapreview.com",
 	authServerID: "ausce8ii5wBzd0zvQ0h7",
 	clientID: "0oackbggxnLe1jjl00h7",
-	redirect_uri: "http://localhost:3090",
+	redirect_uri: "http://okta-mulesoft.herokuapp.com",
 	proxy_uri: "http://okta-solarsystem.cloudhub.io",
 }
