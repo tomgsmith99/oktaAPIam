@@ -7,5 +7,5 @@ module.exports = {
 	authServerID: "ausce8ii5wBzd0zvQ0h7",
 	clientID: "0oackbggxnLe1jjl00h7",
 	redirect_uri: "http://okta-mulesoft.herokuapp.com",
-	proxy_uri: "http://okta-solarsystem.cloudhub.io",
+	proxy_uri: "http://okta-solar-system.cloudhub.io",
 }
