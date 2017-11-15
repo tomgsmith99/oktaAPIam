@@ -10,18 +10,19 @@ module.exports = function (app) {
 
 	app.get('/', function(req, res, next) {
 
-		fs.readFile(__base + 'index.html', 'utf8', (error, webPage) => {
-			if (error) { throw new Error(error) }
-			else {
+		getPartnerPage("index", function(err, webPage) {
+			if (err) { throw new Error(err) }
 
-				webPage = webPage.replace(/{{oktaTenant}}/g, config.oktaTenant);
-				webPage = webPage.replace(/{{authServerID}}/g, config.authServerID);
-				webPage = webPage.replace(/{{clientID}}/g, config.clientID);
-				webPage = webPage.replace(/{{redirect_uri}}/g, config.redirect_uri);
-				webPage = webPage.replace(/{{proxy_uri}}/g, config.proxy_uri);
+			res.send(webPage);
+		});
+	});
 
-				res.send(webPage);
-			}
+	app.get('/:partner', function(req, res, next) {
+
+		getPartnerPage(req.params.partner, function(err, webPage) {
+			if (err) { throw new Error(err) }
+
+			res.send(webPage);
 		});
 	});
 
@@ -49,4 +50,45 @@ module.exports = function (app) {
 		});
 
 	});
+
+	function getPartnerPage(partner, callback) {
+
+		var title = "Okta API Access Management";
+
+		if (partner != "index") {
+			title += " with " + titleCase(partner);
+		}
+
+		fs.readFile(__base + 'html/head.html', 'utf8', (error, head) => {
+
+			head = head.replace(/{{title}}/g, title);
+
+			head = head.replace(/{{oktaTenant}}/g, config.oktaTenant);
+			head = head.replace(/{{authServerID}}/g, config.authServerID);
+			head = head.replace(/{{clientID}}/g, config.clientID);
+			head = head.replace(/{{redirect_uri}}/g, config.redirect_uri_base + '/' + partner);
+
+			fs.readFile(__base + 'html/nav.html', 'utf8', (error, nav) => {
+				if (error) { throw new Error(error) }
+
+				fs.readFile(__base + 'html/' + partner + '.html', 'utf8', (error, webPage) => {
+					if (error) { throw new Error(error) }
+					else {
+
+						webPage = webPage.replace(/{{head}}/g, head);
+
+						webPage = webPage.replace(/{{nav}}/g, nav);
+
+						webPage = webPage.replace(/{{proxy_uri}}/g, config.proxy_uri);
+
+						return callback(null, webPage);
+					}
+				});
+			});
+		});
+	}
+
+	function titleCase(string) {
+		return string.charAt(0).toUpperCase() + string.slice(1);
+	}
 }
