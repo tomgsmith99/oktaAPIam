@@ -71,18 +71,22 @@ module.exports = function (app) {
 			fs.readFile(__base + 'html/nav.html', 'utf8', (error, nav) => {
 				if (error) { throw new Error(error) }
 
-				fs.readFile(__base + 'html/' + partner + '.html', 'utf8', (error, webPage) => {
+				fs.readFile(__base + 'html/' + partner + '_nav.html', 'utf8', (error, localNav) => {
 					if (error) { throw new Error(error) }
-					else {
 
-						webPage = webPage.replace(/{{head}}/g, head);
+					nav = nav.replace(/{{localNav}}/g, localNav);
 
-						webPage = webPage.replace(/{{nav}}/g, nav);
+					fs.readFile(__base + 'html/' + partner + '.html', 'utf8', (error, webPage) => {
+						if (error) { throw new Error(error) }
 
-						webPage = webPage.replace(/{{proxy_uri}}/g, config.proxy_uri);
+							webPage = webPage.replace(/{{head}}/g, head);
 
-						return callback(null, webPage);
-					}
+							webPage = webPage.replace(/{{nav}}/g, nav);
+
+							webPage = webPage.replace(/{{proxy_uri}}/g, config.proxy_uri);
+
+							return callback(null, webPage);
+					});
 				});
 			});
 		});
