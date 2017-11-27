@@ -37,7 +37,7 @@
 
 		// look for access token in url
 		if (window.location.hash) {
-			getAccessToken(window.location.hash.substring(1));
+			var accessToken = getAccessToken(window.location.hash.substring(1));
 		}
 
 		// for debugging user sessions
@@ -98,9 +98,35 @@
 
 		console.log("accessToken: " + accessToken);
 
+		localStorage.setItem('accessToken', accessToken);
+
 		updateLinks(accessToken);
 
 		inspectToken(accessToken);
+
+		return accessToken;
+	}
+
+	function getData() {
+		// alert("the button was clicked! the access token is: " + accessToken);
+
+		var settings = {
+  "async": true,
+  "crossDomain": true,
+  "url": "http://okta-solar-system.cloudhub.io/planets",
+  "method": "GET",
+  "headers": {
+    "content-type": "application/x-www-form-urlencoded",
+    "accept": "application/json",
+    "authorization": "Bearer eyJraWQiOiJoNFUwOXFvQ0tTd3lJLUc3enVzdHpuNjhYMmVNdDhRZFYzc1U2VVNUZnJrIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULnJZUG50RkJCSW9iUTFiT1djRWdsMFRGTHVtazkyWDFnQmlidEZuYlYzR28iLCJpc3MiOiJodHRwczovL3BhcnRuZXJwb2Mub2t0YXByZXZpZXcuY29tL29hdXRoMi9hdXNjZThpaTV3QnpkMHp2UTBoNyIsImF1ZCI6Im11bGVzb2Z0LmNvbSIsImlhdCI6MTUxMTI5NDM1MiwiZXhwIjoxNTExMjk3OTUyLCJjaWQiOiIwb2Fja2JnZ3huTGUxampsMDBoNyIsInVpZCI6IjAwdWNocXo0NG1rdG82TEpYMGg3Iiwic2NwIjpbImFwaS1yZWFkLXNpbHZlciJdLCJzdWIiOiJjYXJsLnNhZ2FuQG1haWxpbmF0b3IuY29tIn0.awaIInUJLnqOdDmgGz9dAOo5HHGMkcFf5UxqyTQ2nxaOPSRjVxko_G1Zo9JBU9fmyeuY-PqeFxKYZqyt4xu2YydE4E-1uJRDe7bITBY96kdoCV_pXIyAOwBAVb7GZsymjmk4Oq3fHR4IKkT5ALO8xzVLhb_9KNqFMxHkQ11bn7KAoX2b92UHPNbi_-tBK3XEoGggkwFoO2qS8Ca6eZOR18Atd38FaXETOJ9VQ123yoXz0MBfGZV_Hzr9gxZeDmfKtfbeXXLegve5rYBA4vmd7GYV7QHcf4KrrhIxrEdmgvWWzDdp-0EPYnrC_TwYLBpeXspGc5STPa5GnSO2q-loEA",
+    "cache-control": "no-cache",
+    "postman-token": "661b2986-6231-a9e6-4918-e1080478960a"
+  }
+}
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+});
 	}
 
 	function inspectToken(accessToken) {
@@ -127,6 +153,7 @@
 	}
 
 	function killSession(redirect_uri) {
+		localStorage.removeItem("accessToken");
 		signout(function(error, status) {
 			if (error) { console.log("could not sign the user out."); }
 			else {

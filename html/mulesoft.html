@@ -63,10 +63,25 @@
 								password: mars</p>
 							</div>
 							<div class = "col-sm-6" style="text-align: center;">
-								<button type="button" class="btn" onclick="redirectToOkta('silver')">authenticate</button>
+								<button type="button" class="btn btn-default" onclick="redirectToOkta('silver')">authenticate</button>
 							</div>
 						</div>
-						<span id = "planetsLink"><a href= "{{proxy_uri}}/planets" target = "_blank">{{proxy_uri}}/planets</a></span>
+<!-- 						<span id = "planetsLink">endpoint: <a href= "{{proxy_uri}}/planets" target = "_blank">{{proxy_uri}}/planets</a></span> -->
+						<span id = "planetsLink">endpoint: {{proxy_uri}}/planets</span>
+
+						<div style= "text-align: center; padding-top: 10px">
+							<button type="button" class="btn btn-info" onclick="getData()">show me the planets!</button>
+						</div>
+
+						<p>
+							<pre>
+"headers": {
+  "content-type": "application/x-www-form-urlencoded",
+  "accept": "application/json",
+  "authorization": "Bearer "
+}</pre>
+
+						</p>
 					</div>
 				</div>
 

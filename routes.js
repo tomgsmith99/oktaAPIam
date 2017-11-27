@@ -8,6 +8,12 @@ var request = require('request');
 
 module.exports = function (app) {
 
+	app.get('/favicon.ico', function(req, res, next) {
+		var img = fs.readFileSync(__base + '/favicon.ico');
+		res.writeHead(200, {'Content-Type': 'image/x-icon' });
+		res.end(img, 'binary');
+	});
+
 	app.get('/', function(req, res, next) {
 
 		getPartnerPage("index", function(err, webPage) {
