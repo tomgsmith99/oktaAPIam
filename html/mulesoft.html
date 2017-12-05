@@ -66,21 +66,26 @@
 								<button type="button" class="btn btn-default" onclick="redirectToOkta('silver')">authenticate</button>
 							</div>
 						</div>
-<!-- 						<span id = "planetsLink">endpoint: <a href= "{{proxy_uri}}/planets" target = "_blank">{{proxy_uri}}/planets</a></span> -->
+
 						<span id = "planetsLink">endpoint: {{proxy_uri}}/planets</span>
 
 						<div style= "text-align: center; padding-top: 10px">
 							<button type="button" class="btn btn-info" onclick="getData()">show me the planets!</button>
 						</div>
 
-						<p id = "headers">
+						<div id = "results_planets">
+
+						</div>
+
+
+<!-- 						<p id = "headers">
 							<code style = "white-space: pre;">"headers": {
   "content-type": "application/x-www-form-urlencoded",
   "accept": "application/json",
   "authorization": "Bearer <span id = "shortToken"></span>"
 }</code>
 
-						</p>
+						</p> -->
 					</div>
 				</div>
 
@@ -99,7 +104,16 @@
 								<button type="button" class="btn btn-warning" onclick="redirectToOkta('gold')">authenticate</button>
 							</div>
 						</div>
-						<span id = "moonsLink"><a href= "{{proxy_uri}}/moons" target = "_blank">{{proxy_uri}}/moons</a></span>
+						<span id = "moonsLink">endpoint: {{proxy_uri}}/moons</span>
+
+						<div style= "text-align: center; padding-top: 10px">
+							<button type="button" class="btn btn-info" onclick="getData()">show me the moons!</button>
+						</div>
+
+						<div id = "results_moons">
+
+						</div>
+
 					</div>
 				</div>
 

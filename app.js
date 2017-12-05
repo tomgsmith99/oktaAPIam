@@ -1,4 +1,4 @@
-// Okta + Mulesoft integration
+// Okta API Access Management
 
 ////////////////////////////////////////////////////
 global.__base = __dirname + '/';
@@ -11,10 +11,14 @@ const express = require('express');
 
 var fs = require('fs');
 
+var session = require("express-session");
+
 ///////////////////////////////////////////////////
 
 // SET UP WEB SERVER
 const app = express();
+
+app.use(session({ secret: config.SECRET, cookie: { maxAge: 60000 }}))
 
 app.use(bodyParser.json());
 

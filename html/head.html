@@ -35,10 +35,57 @@
 			console.log("authn uri: " + localStorage.getItem("authURI"));
 		}
 
-		// look for access token in url
+		// look for parameters in url
 		if (window.location.hash) {
-			var accessToken = getAccessToken(window.location.hash.substring(1));
+			var urlParams = getParams(window.location.hash.substring(1));
+
+			var partner = "{{partner}}";
+
+			console.log("the url params are: ");
+
+			// show the url parameters nicely in the console
+			for (const prop in urlParams) {
+				console.log(prop + ": " + urlParams[prop]);
+			}
+
+			// if we have an authorization code, send it to the server
+			// immediately to set an access code on the server
+			if (urlParams.code) {
+
+				// getData(code, "someString");
+
+				getAccessToken(urlParams.code);
+			}
+
+			if (urlParams.id_token) {
+				var id_token = urlParams.id_token;
+				localStorage.setItem("id_token", id_token);
+			}
+			if (urlParams.state) {
+				var state = urlParams.state;
+				localStorage.setItem("state", state);
+			}
+
+			// var accessToken = urlParams.accessToken;
+			// localStorage.setItem("accessToken", accessToken);
+
+			// var shortToken = accessToken.substring(0,16);
+			// localStorage.setItem('shortToken', shortToken);
+
+			// $("#shortToken").html(shortToken + "...");
+
+			// // updateLinks(accessToken);
+
+			// inspectToken(accessToken);
 		}
+
+
+		// look for id token and authorization code in url
+		// if (window.location.hash) {
+		// 	var accessToken = getAccessToken(window.location.hash.substring(1));
+
+		// 	var authorizationCode = "";
+		// }
 
 		// for debugging user sessions
 		checkForOktaSession();
@@ -87,55 +134,106 @@
 		});
 	}
 
-	function getAccessToken(hash) {
+	function getParams(hash) {
 
 		var arr = hash.split("&");
 
-		// key/value pair
-		var kvp = arr[0].split("=");
+		var params = {};
 
-		var accessToken = kvp[1];
-
-		console.log("accessToken: " + accessToken);
-
-		localStorage.setItem('accessToken', accessToken);
-
-		// the "short token" is for display purposes only
-		// it does not have any functional value
-
-		var shortToken = accessToken.substring(0,16);
-
-		localStorage.setItem('shortToken', shortToken);
-
-		$("#shortToken").html(shortToken + "...");
-
-		// updateLinks(accessToken);
-
-		inspectToken(accessToken);
-
-		return accessToken;
-	}
-
-	function getData() {
-		// alert("the button was clicked! the access token is: " + accessToken);
-
-		var settings = {
-			"async": true,
-			"crossDomain": true,
-			"url": "http://okta-solar-system.cloudhub.io/planets",
-			"method": "GET",
-			"headers": {
-				"content-type": "application/x-www-form-urlencoded",
-				"accept": "application/json",
-				"authorization": "Bearer " + localStorage.getItem('accessToken'),
-				"cache-control": "no-cache"
-			}
+		// convert the url params to an object
+		for (var i = 0; i < arr.length; i++) {
+			var kvp = arr[i].split("=");
+			params[kvp[0]] = kvp[1];
 		}
 
-		$.ajax(settings).done(function (response) {
-			console.log(response);
-		});
+		return params;
 	}
+
+	function getAccessToken(code) {
+
+		$.ajax({
+			type: 'POST',
+			data: JSON.stringify({ "code": code}),
+			contentType: 'application/json',
+			url: '/getAccessToken',
+			success: function(data) {
+				console.log(data);
+
+				var obj = JSON.parse(data);
+
+				// $("#inspectedToken").html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
+
+				// $("#introspectResults").show();
+
+				// $("#successfulAuth").show();
+
+				// $("#getStarted").hide();
+			}
+		});
+
+		// return accessToken;
+	}
+
+	// send the authorization code and the requested endpoint
+	// to the server-side app
+	function getData(code, endpoint) {
+
+		$.ajax({
+			type: 'POST',
+			data: JSON.stringify({ "code": code, "endpoint": endpoint }),
+			contentType: 'application/json',
+			url: '/getData',
+			success: function(data) {
+				console.log(data);
+
+				var obj = JSON.parse(data);
+
+				$("#inspectedToken").html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
+
+				$("#introspectResults").show();
+
+				$("#successfulAuth").show();
+
+				$("#getStarted").hide();
+			}
+		});
+		// var settings = {
+		// 	"async": true,
+		// 	"crossDomain": true,
+		// 	"url": "http://okta-solar-system.cloudhub.io/planets",
+		// 	"method": "GET",
+		// 	"headers": {
+		// 		"content-type": "application/x-www-form-urlencoded",
+		// 		"accept": "application/json",
+		// 		"authorization": "Bearer " + localStorage.getItem('accessToken'),
+		// 		"cache-control": "no-cache"
+		// 	}
+		// }
+
+		// $.ajax(settings).done(function (response) {
+		// 	console.log(response);
+		// });
+	}
+
+	// function getData() {
+
+	// 	var settings = {
+	// 		"async": true,
+	// 		"crossDomain": true,
+	// 		"url": "http://okta-solar-system.cloudhub.io/planets",
+	// 		"method": "GET",
+	// 		"headers": {
+	// 			"content-type": "application/x-www-form-urlencoded",
+	// 			"accept": "application/json",
+	// 			"authorization": "Bearer " + localStorage.getItem('accessToken'),
+	// 			"cache-control": "no-cache"
+	// 		}
+	// 	}
+
+	// 	$.ajax(settings).done(function (response) {
+	// 		console.log(response);
+	// 	});
+	// }
 
 	function inspectToken(accessToken) {
 
@@ -161,7 +259,7 @@
 	}
 
 	function killSession(redirect_uri) {
-		localStorage.removeItem("accessToken");
+		localStorage.clear();
 		signout(function(error, status) {
 			if (error) { console.log("could not sign the user out."); }
 			else {
@@ -181,15 +279,17 @@
 			else {
 				console.log("signed the user out successfully.");
 
-				var uri = '{{oktaTenant}}/oauth2/{{authServerID}}/v1/authorize?response_type=token&client_id={{clientID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=api-read-silver';
-				
-				if (level == "gold") {
-					uri += " api-read-gold";
-				}
+				// var uri = '{{oktaTenant}}/oauth2/{{authServerID}}/v1/authorize?response_type=token&client_id={{clientID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=api-read-silver';
+
+				var uri = '{{oktaTenant}}/oauth2/{{authServerID}}/v1/authorize?response_type=code id_token&client_id={{clientID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=openid';
+
+				if (level == "silver" || level == "gold") { uri += " api-read-silver"; };
+
+				if (level == "gold") { uri += " api-read-gold"; }
 
 				localStorage.setItem("authURI", uri);
 
-				console.log("the auth URI is: " + uri);
+				console.log("authn URI: " + uri);
 
 				window.location = uri;
 			}
