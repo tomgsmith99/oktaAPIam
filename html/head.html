@@ -51,9 +51,6 @@
 			// if we have an authorization code, send it to the server
 			// immediately to set an access code on the server
 			if (urlParams.code) {
-
-				// getData(code, "someString");
-
 				getAccessToken(urlParams.code);
 			}
 
@@ -65,27 +62,7 @@
 				var state = urlParams.state;
 				localStorage.setItem("state", state);
 			}
-
-			// var accessToken = urlParams.accessToken;
-			// localStorage.setItem("accessToken", accessToken);
-
-			// var shortToken = accessToken.substring(0,16);
-			// localStorage.setItem('shortToken', shortToken);
-
-			// $("#shortToken").html(shortToken + "...");
-
-			// // updateLinks(accessToken);
-
-			// inspectToken(accessToken);
 		}
-
-
-		// look for id token and authorization code in url
-		// if (window.location.hash) {
-		// 	var accessToken = getAccessToken(window.location.hash.substring(1));
-
-		// 	var authorizationCode = "";
-		// }
 
 		// for debugging user sessions
 		checkForOktaSession();
@@ -161,102 +138,58 @@
 
 				var obj = JSON.parse(data);
 
-				// $("#inspectedToken").html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
+				$("#inspectedToken").html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
 
-				// $("#introspectResults").show();
+				$("#introspectResults").show();
 
-				// $("#successfulAuth").show();
+				$("#successfulAuth").show();
 
-				// $("#getStarted").hide();
+				$("#getStarted").hide();
 			}
 		});
-
-		// return accessToken;
 	}
 
 	// send the authorization code and the requested endpoint
 	// to the server-side app
-	function getData(code, endpoint) {
+	function getData(endpoint) {
 
 		$.ajax({
 			type: 'POST',
-			data: JSON.stringify({ "code": code, "endpoint": endpoint }),
+			data: JSON.stringify({ "endpoint": endpoint }),
 			contentType: 'application/json',
 			url: '/getData',
 			success: function(data) {
-				console.log(data);
-
 				var obj = JSON.parse(data);
 
-				$("#inspectedToken").html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
+				console.log("the results are: " + data);
 
-				$("#introspectResults").show();
-
-				$("#successfulAuth").show();
-
-				$("#getStarted").hide();
+				$("#results_" + endpoint).html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
 			}
 		});
-		// var settings = {
-		// 	"async": true,
-		// 	"crossDomain": true,
-		// 	"url": "http://okta-solar-system.cloudhub.io/planets",
-		// 	"method": "GET",
-		// 	"headers": {
-		// 		"content-type": "application/x-www-form-urlencoded",
-		// 		"accept": "application/json",
-		// 		"authorization": "Bearer " + localStorage.getItem('accessToken'),
-		// 		"cache-control": "no-cache"
-		// 	}
-		// }
-
-		// $.ajax(settings).done(function (response) {
-		// 	console.log(response);
-		// });
 	}
 
-	// function getData() {
+	// function inspectToken(accessToken) {
 
-	// 	var settings = {
-	// 		"async": true,
-	// 		"crossDomain": true,
-	// 		"url": "http://okta-solar-system.cloudhub.io/planets",
-	// 		"method": "GET",
-	// 		"headers": {
-	// 			"content-type": "application/x-www-form-urlencoded",
-	// 			"accept": "application/json",
-	// 			"authorization": "Bearer " + localStorage.getItem('accessToken'),
-	// 			"cache-control": "no-cache"
+	// 	$.ajax({
+	// 		type: 'POST',
+	// 		data: JSON.stringify({ "accessToken": accessToken}),
+	// 		contentType: 'application/json',
+	// 		url: '/introspect',
+	// 		success: function(data) {
+	// 			console.log(data);
+
+	// 			var obj = JSON.parse(data);
+
+	// 			$("#inspectedToken").html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
+
+	// 			$("#introspectResults").show();
+
+	// 			$("#successfulAuth").show();
+
+	// 			$("#getStarted").hide();
 	// 		}
-	// 	}
-
-	// 	$.ajax(settings).done(function (response) {
-	// 		console.log(response);
 	// 	});
 	// }
-
-	function inspectToken(accessToken) {
-
-		$.ajax({
-			type: 'POST',
-			data: JSON.stringify({ "accessToken": accessToken}),
-			contentType: 'application/json',
-			url: '/introspect',
-			success: function(data) {
-				console.log(data);
-
-				var obj = JSON.parse(data);
-
-				$("#inspectedToken").html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
-
-				$("#introspectResults").show();
-
-				$("#successfulAuth").show();
-
-				$("#getStarted").hide();
-			}
-		});
-	}
 
 	function killSession(redirect_uri) {
 		localStorage.clear();
@@ -279,8 +212,6 @@
 			else {
 				console.log("signed the user out successfully.");
 
-				// var uri = '{{oktaTenant}}/oauth2/{{authServerID}}/v1/authorize?response_type=token&client_id={{clientID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=api-read-silver';
-
 				var uri = '{{oktaTenant}}/oauth2/{{authServerID}}/v1/authorize?response_type=code id_token&client_id={{clientID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=openid';
 
 				if (level == "silver" || level == "gold") { uri += " api-read-silver"; };
@@ -297,25 +228,35 @@
 	}
 
 	function signout(callback) {
-		localStorage.removeItem("authURI");
+		localStorage.clear();
 
 		console.log("attempting to sign out...");
+
+		// kill local session
 		$.ajax({
-			type: "DELETE",
-			dataType: 'json',
-			url: "{{oktaTenant}}/api/v1/sessions/me",
-			xhrFields: {
-				withCredentials: true
-			},
-			success: function (data) {
-				return callback(null, "success");
-			},
-			error: function (textStatus, errorThrown) {
-				// console.log('error deleting session: ' + JSON.stringify(textStatus));
-				// console.log(errorThrown);
-				return callback(null, "success");
-			},
-			async: true
+			type: 'POST',
+			contentType: 'application/json',
+			url: '/killSession',
+			success: function() {
+				// kill okta session
+				$.ajax({
+					type: "DELETE",
+					dataType: 'json',
+					url: "{{oktaTenant}}/api/v1/sessions/me",
+					xhrFields: {
+						withCredentials: true
+					},
+					success: function (data) {
+						return callback(null, "success");
+					},
+					error: function (textStatus, errorThrown) {
+						// console.log('error deleting session: ' + JSON.stringify(textStatus));
+						// console.log(errorThrown);
+						return callback(null, "success");
+					},
+					async: true
+				});
+			}
 		});
 	}
 

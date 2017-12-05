@@ -23,7 +23,7 @@
 				<p id = "getStarted">Just authenticate as one of the users on the right to get started.</p>
 
 				<div class="alert alert-success" id="successfulAuth" style="display: none">
-					<strong>Success!</strong> User has successfully authenticated and gotten an access token. Click one of the okta-solar-system urls to test the access token.
+					<strong>Success!</strong> User has successfully authenticated and gotten an access token. The access token is sitting in a user session on the server. Click one of the okta-solar-system urls to test the access token.
 				</div>
 
 				<div id = "introspectResults">
@@ -70,22 +70,15 @@
 						<span id = "planetsLink">endpoint: {{proxy_uri}}/planets</span>
 
 						<div style= "text-align: center; padding-top: 10px">
-							<button type="button" class="btn btn-info" onclick="getData()">show me the planets!</button>
+							<button type="button" class="btn btn-info" onclick="getData('planets')">show me the planets!</button>
 						</div>
 
-						<div id = "results_planets">
-
+						<div class="panel panel-primary" style ="margin-top:10px">
+							<div class="panel-heading">
+								<h3 class="panel-title">Planets</h3>
+							</div>
+							<div class="panel-body" id = "results_planets"></div>
 						</div>
-
-
-<!-- 						<p id = "headers">
-							<code style = "white-space: pre;">"headers": {
-  "content-type": "application/x-www-form-urlencoded",
-  "accept": "application/json",
-  "authorization": "Bearer <span id = "shortToken"></span>"
-}</code>
-
-						</p> -->
 					</div>
 				</div>
 
@@ -107,11 +100,14 @@
 						<span id = "moonsLink">endpoint: {{proxy_uri}}/moons</span>
 
 						<div style= "text-align: center; padding-top: 10px">
-							<button type="button" class="btn btn-info" onclick="getData()">show me the moons!</button>
+							<button type="button" class="btn btn-info" onclick="getData('moons')">show me the moons!</button>
 						</div>
 
-						<div id = "results_moons">
-
+						<div class="panel panel-primary" style ="margin-top:10px">
+							<div class="panel-heading">
+								<h3 class="panel-title">Moons</h3>
+							</div>
+							<div class="panel-body" id = "results_moons"></div>
 						</div>
 
 					</div>

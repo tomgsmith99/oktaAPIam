@@ -41,10 +41,9 @@ module.exports = function (app) {
 	app.post('/getAccessToken', function(req, res, next) {
 		var code = req.body.code;
 
-		console.log("the code is: " + code);
-//		console.log("the endpoint is: " + endpoint);
+		console.log("the authorizaation code is: " + code);
 
-		// first, exchange the authorization code
+		// exchange the authorization code
 		// for an access token
 
 		var url = getOAuthPath() + "token";
@@ -54,12 +53,10 @@ module.exports = function (app) {
 		console.log("the redirect_uri is: " + redirect_uri);
 
 		var options = { method: 'POST',
-//			url: 'https://partnerpoc.oktapreview.com/oauth2/ausce8ii5wBzd0zvQ0h7/v1/token',
 			url: url,
 			qs: 
 				{ grant_type: 'authorization_code',
 				code: code,
-//				redirect_uri: 'http://localhost:3090/mulesoft'
 				redirect_uri: redirect_uri
 			},
 			headers: 
@@ -77,67 +74,20 @@ module.exports = function (app) {
 
 			if (obj.hasOwnProperty("access_token")) {
 				req.session.access_token = obj.access_token;
+				console.log("the access token is: " + req.session.access_token);
 			}
 			if (obj.hasOwnProperty("id_token")) {
 				req.session.id_token = obj.id_token;
 			}
-			// if (obj.access_token) {
-			// 	req.session.access_token = obj.access_token;
-			// }
-			// if (obj.session.id_token) {
-			// 	req.session.id_token = obj.id_token;
-			// }
-
-			console.log("the access token is: " + req.session.access_token);
-
-			res.send("got the accessToken");
-		});
-	});
-
-
-	app.post('/getData', function(req, res, next) {
-		var code = req.body.code;
-		var endpoint = req.body.endpoint;
-
-		console.log("the code is: " + code);
-		console.log("the endpoint is: " + endpoint);
-
-		// first, exchange the authorization code
-		// for an access token
-		var options = { method: 'POST',
-			url: 'https://partnerpoc.oktapreview.com/oauth2/ausce8ii5wBzd0zvQ0h7/v1/token',
-			qs: 
-				{ grant_type: 'authorization_code',
-				code: code,
-				redirect_uri: 'http://localhost:3090/mulesoft',
-			},
-			headers: 
-				{ 'cache-control': 'no-cache',
-				authorization: 'Basic ' + getBasicAuthString(),
-				'content-type': 'application/x-www-form-urlencoded' }
-		};
-
-		request(options, function (error, response, body) {
-			if (error) throw new Error(error);
-
-			console.log(body);
-
-			var obj = JSON.parse(body);
-
-			var access_token = obj.access_token;
-
-			var id_token;
-
-			if (obj.id_token) { id_token = obj.id_token; }
-
-			console.log("the access token is: " + obj.access_token);
 
 			// send the access token to the introspection endpoint
 			// (for illustration purposes only)
 
+			url = getOAuthPath() + "introspect";
+
 			var options = { method: 'POST',
-				url: config.oktaTenant + '/oauth2/' + config.authServerID + '/v1/introspect',
-				qs: { token: access_token },
+				url: url,
+				qs: { token: req.session.access_token },
 				headers:
 				{
 				'cache-control': 'no-cache',
@@ -147,68 +97,56 @@ module.exports = function (app) {
 				'content-type': 'application/x-www-form-urlencoded' }
 			};
 
-			var responseObj = {} // an object to send back to the browser
-
 			request(options, function (error, response, body) {
 				if (error) throw new Error(error);
 
 				console.log("response from Okta: ");
 				console.log(body);
 
-				responseObj.introspect = JSON.parse(body);
-
-				// send the access token to the requested API endpoint
-
-				var options = { method: 'GET',
-					url: 'http://okta-solar-system.cloudhub.io/planets',
-					headers:
-					{
-					'cache-control': 'no-cache',
-					authorization: "Bearer " + access_token,
-
-					accept: 'application/json',
-					'content-type': 'application/x-www-form-urlencoded' }
-				};
-
-				request(options, function (error, response, body) {
-					if (error) throw new Error(error);
-
-					console.log("******\nresponse from API gateway: ");
-
-					console.log(body);
-
-					responseObj.data = JSON.parse(body);
-
-					res.send(JSON.stringify(responseObj));
-				});
+				res.json(body);
 			});
 		});
 	});
 
-	// app.post('/introspect', function(req, res, next) {
 
-	// 	var accessToken = req.body.accessToken;
+	app.post('/getData', function(req, res, next) {
+		var endpoint = req.body.endpoint;
 
-	// 	var options = { method: 'POST',
-	// 	  url: config.oktaTenant + '/oauth2/' + config.authServerID + '/v1/introspect',
-	// 	  qs: { token: accessToken },
-	// 	  headers: 
-	// 	   {
-	// 	     'cache-control': 'no-cache',
-	// 	    authorization: 'Basic ' + config.authString,
+		console.log("the requested endpoint is: " + endpoint);
 
-	// 	     accept: 'application/json',
-	// 	     'content-type': 'application/x-www-form-urlencoded' } };
+		// send the access token to the requested API endpoint
 
-	// 	request(options, function (error, response, body) {
-	// 		if (error) throw new Error(error);
+		var url = config.proxy_uri + "/" + req.body.endpoint;
 
-	// 		console.log(body);
+		var options = { method: 'GET',
+			url: url,
+			headers:
+			{
+			'cache-control': 'no-cache',
+			authorization: "Bearer " + req.session.access_token,
 
-	// 		res.json(body);
-	// 	});
+			accept: 'application/json',
+			'content-type': 'application/x-www-form-urlencoded' }
+		};
 
-	// });
+		request(options, function (error, response, body) {
+			if (error) throw new Error(error);
+
+			console.log("******\nresponse from API gateway: ");
+
+			console.log(body);
+
+			res.json(body);
+		});
+	});
+
+	app.post('/killSession', function(req, res, next) {
+		req.session.destroy(function(err) {
+			if (err) throw new Error(err);
+			console.log("successfully destroyed session.");
+			res.send("OK");
+		})
+	});
 
 	function getOAuthPath() {
 		return config.oktaTenant + "/oauth2/" + config.authServerID + "/v1/";
