@@ -12,21 +12,6 @@ var session = require("express-session");
 
 module.exports = function (app) {
 
-	// app.get('/favicon.ico', function(req, res, next) {
-	// 	var img = fs.readFileSync(__base + '/favicon.ico');
-	// 	res.writeHead(200, {'Content-Type': 'image/x-icon' });
-	// 	res.end(img, 'binary');
-	// });
-
-	app.get('/', function(req, res, next) {
-
-		getPage("index", function(err, webPage) {
-			if (err) { throw new Error(err) }
-
-			res.send(webPage);
-		});
-	});
-
 	app.get('/:partner', function(req, res, next) {
 
 		getPage(req.params.partner, function(err, webPage) {
@@ -41,7 +26,7 @@ module.exports = function (app) {
 	app.post('/getAccessToken', function(req, res, next) {
 		var code = req.body.code;
 
-		console.log("the authorizaation code is: " + code);
+		console.log("the authorization code is: " + code);
 
 		// exchange the authorization code
 		// for an access token

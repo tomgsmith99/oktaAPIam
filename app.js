@@ -18,7 +18,9 @@ var session = require("express-session");
 // SET UP WEB SERVER
 const app = express();
 
-app.use(session({ secret: config.SECRET, cookie: { maxAge: 60000 }}))
+app.use(express.static('public'));
+
+app.use(session({ secret: config.SECRET, cookie: { maxAge: 60000 }}));
 
 app.use(bodyParser.json());
 
