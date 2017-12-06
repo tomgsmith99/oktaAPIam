@@ -101,7 +101,7 @@ module.exports = function (app) {
 
 		// send the access token to the requested API endpoint
 
-		var url = config.proxy_uri + "/" + req.body.endpoint;
+		var url = config[req.session.partner].proxy_uri + "/" + req.body.endpoint;
 
 		var options = { method: 'GET',
 			url: url,
@@ -134,7 +134,7 @@ module.exports = function (app) {
 	});
 
 	function getOAuthPath() {
-		return config.oktaTenant + "/oauth2/" + config.authServerID + "/v1/";
+		return config[req.session.partner].oktaTenant + "/oauth2/" + config[req.session.partner].authServerID + "/v1/";
 	}
 
 	function getPage(partner, callback) {
@@ -149,10 +149,10 @@ module.exports = function (app) {
 
 			head = head.replace(/{{title}}/g, title);
 
-			head = head.replace(/{{oktaTenant}}/g, config.oktaTenant);
-			head = head.replace(/{{authServerID}}/g, config.authServerID);
-			head = head.replace(/{{clientID}}/g, config.clientID);
-			head = head.replace(/{{redirect_uri}}/g, config.redirect_uri_base + '/' + partner);
+			head = head.replace(/{{oktaTenant}}/g, config[partner].oktaTenant);
+			head = head.replace(/{{authServerID}}/g, config[partner].authServerID);
+			head = head.replace(/{{clientID}}/g, config[partner].clientID);
+			head = head.replace(/{{redirect_uri}}/g, config[partner].redirect_uri_base + '/' + partner);
 			head = head.replace(/{{partner}}/g, partner);
 
 			fs.readFile(__base + 'html/nav.html', 'utf8', (error, nav) => {
@@ -170,7 +170,7 @@ module.exports = function (app) {
 
 							webPage = webPage.replace(/{{nav}}/g, nav);
 
-							webPage = webPage.replace(/{{proxy_uri}}/g, config.proxy_uri);
+							webPage = webPage.replace(/{{proxy_uri}}/g, config[partner].proxy_uri);
 
 							return callback(null, webPage);
 					});
@@ -180,12 +180,12 @@ module.exports = function (app) {
 	}
 
 	function getRedirectURI(partner) {
-		return config.redirect_uri_base + "/" + partner;
+		return config[partner].redirect_uri_base + "/" + partner;
 	}
 
 	function getBasicAuthString() {
 
-		var x = config.clientID + ":" + config.client_secret;
+		var x = config[req.session.partner].clientID + ":" + config[req.session.partner].client_secret;
 
 		var y = new Buffer(x).toString('base64');
 
