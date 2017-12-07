@@ -31,7 +31,7 @@ module.exports = function (app) {
 		// exchange the authorization code
 		// for an access token
 
-		var url = getOAuthPath() + "token";
+		var url = getOAuthPath(req.session.partner) + "token";
 		var redirect_uri = getRedirectURI(req.session.partner);
 
 		console.log("the url is: " + url);
@@ -46,7 +46,7 @@ module.exports = function (app) {
 			},
 			headers: 
 				{ 'cache-control': 'no-cache',
-				authorization: 'Basic ' + getBasicAuthString(),
+				authorization: 'Basic ' + getBasicAuthString(req.session.partner),
 				'content-type': 'application/x-www-form-urlencoded' }
 		};
 
@@ -68,7 +68,7 @@ module.exports = function (app) {
 			// send the access token to the introspection endpoint
 			// (for illustration purposes only)
 
-			url = getOAuthPath() + "introspect";
+			url = getOAuthPath(req.session.partner) + "introspect";
 
 			var options = { method: 'POST',
 				url: url,
@@ -76,7 +76,7 @@ module.exports = function (app) {
 				headers:
 				{
 				'cache-control': 'no-cache',
-				authorization: 'Basic ' + getBasicAuthString(),
+				authorization: 'Basic ' + getBasicAuthString(req.session.partner),
 
 				accept: 'application/json',
 				'content-type': 'application/x-www-form-urlencoded' }
@@ -98,6 +98,8 @@ module.exports = function (app) {
 		var endpoint = req.body.endpoint;
 
 		console.log("the requested endpoint is: " + endpoint);
+
+		console.log("the access_token token is: " + req.session.access_token);
 
 		// send the access token to the requested API endpoint
 
@@ -133,8 +135,8 @@ module.exports = function (app) {
 		})
 	});
 
-	function getOAuthPath() {
-		return config[req.session.partner].oktaTenant + "/oauth2/" + config[req.session.partner].authServerID + "/v1/";
+	function getOAuthPath(partner) {
+		return config[partner].oktaTenant + "/oauth2/" + config[partner].authServerID + "/v1/";
 	}
 
 	function getPage(partner, callback) {
@@ -183,9 +185,9 @@ module.exports = function (app) {
 		return config[partner].redirect_uri_base + "/" + partner;
 	}
 
-	function getBasicAuthString() {
+	function getBasicAuthString(partner) {
 
-		var x = config[req.session.partner].clientID + ":" + config[req.session.partner].client_secret;
+		var x = config[partner].clientID + ":" + config[partner].client_secret;
 
 		var y = new Buffer(x).toString('base64');
 

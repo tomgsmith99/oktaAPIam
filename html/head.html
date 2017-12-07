@@ -8,10 +8,6 @@
 	<link rel="shortcut icon" href="https://www.okta.com/sites/all/themes/developer/favicon.ico" type="image/vnd.microsoft.icon" />
 
 	<!-- ******* CSS *******************-->
-	
-<!-- 	<link rel = 'stylesheet' href = 'https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.1.0/css/okta-sign-in.min.css'/>
-
-	<link rel = 'stylesheet' href = 'https://ok1static.oktacdn.com/assets/js/sdk/okta-signin-widget/2.1.0/css/okta-theme.css'/> -->
 
 	<!-- BOOTSTRAP CSS -->
 	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -169,29 +165,6 @@
 			}
 		});
 	}
-
-	// function inspectToken(accessToken) {
-
-	// 	$.ajax({
-	// 		type: 'POST',
-	// 		data: JSON.stringify({ "accessToken": accessToken}),
-	// 		contentType: 'application/json',
-	// 		url: '/introspect',
-	// 		success: function(data) {
-	// 			console.log(data);
-
-	// 			var obj = JSON.parse(data);
-
-	// 			$("#inspectedToken").html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
-
-	// 			$("#introspectResults").show();
-
-	// 			$("#successfulAuth").show();
-
-	// 			$("#getStarted").hide();
-	// 		}
-	// 	});
-	// }
 
 	function killSession(redirect_uri) {
 		localStorage.clear();

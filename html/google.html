@@ -18,9 +18,11 @@
 
 				<h4>Okta + Google Cloud Endpoints</h4>
 
-				<p>In this example, Google Cloud is hosting the demo solar system API. Google Cloud is looking for a valid access token from Okta in the API requests.</p>
+				<p>In this example, Google Cloud is hosting their standard demo "echo" API, which simply echoes back a string passed to it. Google Cloud is looking for a valid access token (jwt) from Okta in the API requests.</p>
 
-				<p id = "getStarted">Just authenticate as one of the users on the right to get started.</p>
+				<p>This integration is authentication only, so any authenticated user will be able to use the API.</p>
+
+				<p id = "getStarted">Just authenticate as Carl Sagan on the right to get started.</p>
 
 				<div class="alert alert-success" id="successfulAuth" style="display: none">
 					<strong>Success!</strong> User has successfully authenticated and gotten an access token. Click one of the okta-solar-system urls to test the access token.
@@ -32,28 +34,13 @@
 						<div class = "panel-body" id="inspectedToken">[none]</div>
 					</div>
 				</div>
-
-
-				<div class="panel panel-info">
-					<div class="panel-heading">
-						<h3 class="panel-title">readme</h3>
-					</div>
-					<div class="panel-body">
-						<p>In this scenario, one user (Carl Sagan) is subscribed to the "silver" level of access, which means he will be able to access the /planets endpoint with his access token by virtue of the "api-read-silver" scope. Okta will mint the access token and include the "api-read-silver" scope because Carl belongs to the "silverSubscribers" group in Okta.</p>
-
-						<p>Similarly, another user (Jodi Foster) is subscribed to the "gold" level of access, which means she will be able to access the /moons endpoint, and she will also be able to access the /planets endpoint by virtue of the scopes included in her access token.</p>
-
-						<p>Try clicking on the links as an unauthenticated user, and then as Carl and Jodi to get a sense of how the access tokens work with the API endpoints.</p>
-					</div>
-				</div>
-
 			</div>
 
 			<div class="col-md-6">
 
 				<div class = "panel panel-default">
 					<div class = "panel-heading">
-						SILVER ACCESS: A list of the planets
+						A list of the planets
 					</div>
 					<div class = "panel-body">
 						<div class = "row">
@@ -63,32 +50,23 @@
 								password: mars</p>
 							</div>
 							<div class = "col-sm-6" style="text-align: center;">
-								<button type="button" class="btn" onclick="redirectToOkta('silver')">authenticate</button>
+								<button type="button" class="btn btn-default" onclick="redirectToOkta()">authenticate</button>
 							</div>
 						</div>
-						<span id = "planetsLink"><a href= "{{proxy_uri}}/planets" target = "_blank">{{proxy_uri}}/planets</a></span>
-					</div>
-				</div>
+						<span id = "planetsLink">{{proxy_uri}}/planets</span>
 
-				<div class = "panel panel-warning">
-					<div class = "panel-heading">
-						GOLD Access: A list of (selected) moons
-					</div>
-					<div class = "panel-body">
-						<div class = "row">
-							<div class = "col-sm-6">
-								<p>username: jodi.foster
-								<br>
-								password: mars</p>
-							</div>
-							<div class = "col-sm-6" style="text-align: center;">
-								<button type="button" class="btn btn-warning" onclick="redirectToOkta('gold')">authenticate</button>
-							</div>
+						<div style= "text-align: center; padding-top: 10px">
+							<button type="button" class="btn btn-info" onclick="getData('planets')">show me the planets!</button>
 						</div>
-						<span id = "moonsLink"><a href= "{{proxy_uri}}/moons" target = "_blank">{{proxy_uri}}/moons</a></span>
+
+						<div class="panel panel-primary" style ="margin-top:10px">
+							<div class="panel-heading">
+								<h3 class="panel-title">Planets</h3>
+							</div>
+							<div class="panel-body" id = "results_planets"></div>
+						</div>
 					</div>
 				</div>
-
 			</div>
 	</div>
 
