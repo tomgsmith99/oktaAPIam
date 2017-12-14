@@ -154,7 +154,7 @@ module.exports = function (app) {
 			head = head.replace(/{{oktaTenant}}/g, config[partner].oktaTenant);
 			head = head.replace(/{{authServerID}}/g, config[partner].authServerID);
 			head = head.replace(/{{clientID}}/g, config[partner].clientID);
-			head = head.replace(/{{redirect_uri}}/g, config[partner].redirect_uri_base + '/' + partner);
+			head = head.replace(/{{redirect_uri}}/g, getRedirectURI(partner);
 			head = head.replace(/{{partner}}/g, partner);
 
 			fs.readFile(__base + 'html/nav.html', 'utf8', (error, nav) => {
