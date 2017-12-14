@@ -182,7 +182,9 @@ module.exports = function (app) {
 	}
 
 	function getRedirectURI(partner) {
-		return config[partner].redirect_uri_base + "/" + partner;
+		// return config[partner].redirect_uri_base + "/" + partner;
+		return process.env.REDIRECT_URI_BASE + "/" + partner;
+
 	}
 
 	function getBasicAuthString(partner) {
