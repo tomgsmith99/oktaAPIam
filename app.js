@@ -15,6 +15,10 @@ var session = require("express-session");
 
 ///////////////////////////////////////////////////
 
+if (process.env.HOST == "LOCALHOST") {
+	require('dotenv').config()
+}
+
 // SET UP WEB SERVER
 const app = express();
 
