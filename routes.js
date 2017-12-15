@@ -93,7 +93,6 @@ module.exports = function (app) {
 		});
 	});
 
-
 	app.post('/getData', function(req, res, next) {
 		var endpoint = req.body.endpoint;
 
@@ -182,9 +181,7 @@ module.exports = function (app) {
 	}
 
 	function getRedirectURI(partner) {
-		// return config[partner].redirect_uri_base + "/" + partner;
 		return process.env.REDIRECT_URI_BASE + "/" + partner;
-
 	}
 
 	function getBasicAuthString(partner) {
