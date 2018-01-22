@@ -19,6 +19,8 @@ if (process.env.HOST == "LOCALHOST") {
 	require('dotenv').config()
 }
 
+console.log("the value of SOME_VAR is " + process.env.SOME_VAR)
+
 // SET UP WEB SERVER
 const app = express();
 
