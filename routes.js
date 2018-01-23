@@ -1,4 +1,3 @@
-var config = require(__base + '.env.js');
 
 var bodyParser = require('body-parser');
 
@@ -31,7 +30,8 @@ module.exports = function (app) {
 		// exchange the authorization code
 		// for an access token
 
-		var url = getOAuthPath(req.session.partner) + "token";
+		var url = OAUTH_PATH + "token";
+
 		var redirect_uri = getRedirectURI(req.session.partner);
 
 		console.log("the url is: " + url);
@@ -68,7 +68,7 @@ module.exports = function (app) {
 			// send the access token to the introspection endpoint
 			// (for illustration purposes only)
 
-			url = getOAuthPath(req.session.partner) + "introspect";
+			url = OAUTH_PATH + "introspect";
 
 			var options = { method: 'POST',
 				url: url,
@@ -102,7 +102,7 @@ module.exports = function (app) {
 
 		// send the access token to the requested API endpoint
 
-		var url = config[req.session.partner].proxy_uri + "/" + req.body.endpoint;
+		var url = getProxyURI(req.session.partner) + "/" + req.body.endpoint;
 
 		var options = { method: 'GET',
 			url: url,
@@ -134,10 +134,6 @@ module.exports = function (app) {
 		})
 	});
 
-	function getOAuthPath(partner) {
-		return config[partner].oktaTenant + "/oauth2/" + config[partner].authServerID + "/v1/";
-	}
-
 	function getPage(partner, callback) {
 
 		var title = "Okta API Access Management";
@@ -146,32 +142,32 @@ module.exports = function (app) {
 			title += " with " + titleCase(partner);
 		}
 
-		fs.readFile(__base + 'html/head.html', 'utf8', (error, head) => {
+		fs.readFile('./html/head.html', 'utf8', (error, head) => {
 
 			head = head.replace(/{{title}}/g, title);
 
-			head = head.replace(/{{oktaTenant}}/g, config[partner].oktaTenant);
-			head = head.replace(/{{authServerID}}/g, config[partner].authServerID);
-			head = head.replace(/{{clientID}}/g, config[partner].clientID);
+			head = head.replace(/{{OKTA_TENANT}}/g, OKTA_TENANT);
+			head = head.replace(/{{OAUTH_PATH}}/g, OAUTH_PATH);
+			head = head.replace(/{{CLIENT_ID}}/g, getClientID(partner));
 			head = head.replace(/{{redirect_uri}}/g, getRedirectURI(partner));
 			head = head.replace(/{{partner}}/g, partner);
 
-			fs.readFile(__base + 'html/nav.html', 'utf8', (error, nav) => {
+			fs.readFile('./html/nav.html', 'utf8', (error, nav) => {
 				if (error) { throw new Error(error) }
 
-				fs.readFile(__base + 'html/' + partner + '_nav.html', 'utf8', (error, localNav) => {
+				fs.readFile('./html/' + partner + '_nav.html', 'utf8', (error, localNav) => {
 					if (error) { throw new Error(error) }
 
 					nav = nav.replace(/{{localNav}}/g, localNav);
 
-					fs.readFile(__base + 'html/' + partner + '.html', 'utf8', (error, webPage) => {
+					fs.readFile('./html/' + partner + '.html', 'utf8', (error, webPage) => {
 						if (error) { throw new Error(error) }
 
 							webPage = webPage.replace(/{{head}}/g, head);
 
 							webPage = webPage.replace(/{{nav}}/g, nav);
 
-							webPage = webPage.replace(/{{proxy_uri}}/g, config[partner].proxy_uri);
+							webPage = webPage.replace(/{{proxy_uri}}/g, getProxyURI(partner));
 
 							return callback(null, webPage);
 					});
@@ -180,19 +176,31 @@ module.exports = function (app) {
 		});
 	}
 
+	function getClientID(partner) {
+		return _CFG[partner.toUpperCase()].CLIENT_ID
+	}
+
+	function getProxyURI(partner) {
+		return _CFG[partner.toUpperCase()].PROXY_URI
+	}
+
 	function getRedirectURI(partner) {
-		return process.env.REDIRECT_URI_BASE + "/" + partner;
+		return REDIRECT_URI_BASE + "/" + partner;
 	}
 
 	function getBasicAuthString(partner) {
 
-		var x = config[partner].clientID + ":" + config[partner].client_secret;
+		partner = partner.toUpperCase();
+
+		var x = _CFG[partner].CLIENT_ID + ":" + _CFG[partner].CLIENT_SECRET;
 
 		var y = new Buffer(x).toString('base64');
 
-		console.log("the auth string is: " + y);
-		
 		return y;
+	}
+
+	function getSettings() {
+		console.log("the OAUTH_PATH is: " + getOAuthPath())
 	}
 
 	function titleCase(string) {

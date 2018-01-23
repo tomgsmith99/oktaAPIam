@@ -56,6 +56,7 @@
 				var id_token = urlParams.id_token;
 				localStorage.setItem("id_token", id_token);
 			}
+
 			if (urlParams.state) {
 				var state = urlParams.state;
 				localStorage.setItem("state", state);
@@ -74,7 +75,7 @@
 
 		// Initialize the Okta widget
 		var oktaSignIn = new OktaSignIn({
-			baseUrl: '{{oktaTenant}}'
+			baseUrl: '{{OKTA_TENANT}}'
 		});
 
 		// Check for an Okta session
@@ -86,7 +87,7 @@
 					$.ajax({
 						type: "GET",
 						dataType: 'json',
-						url: "{{oktaTenant}}/api/v1/users/" + res.userId,
+						url: "{{OKTA_TENANT}}/api/v1/users/" + res.userId,
 
 						xhrFields: {
 							withCredentials: true
@@ -187,7 +188,7 @@
 			else {
 				console.log("signed the user out successfully.");
 
-				var uri = '{{oktaTenant}}/oauth2/{{authServerID}}/v1/authorize?response_type=code id_token&client_id={{clientID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=openid';
+				var uri = '{{OAUTH_PATH}}authorize?response_type=code id_token&client_id={{CLIENT_ID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=openid';
 
 				if (level == "silver" || level == "gold") { uri += " api-read-silver"; };
 
@@ -217,7 +218,7 @@
 				$.ajax({
 					type: "DELETE",
 					dataType: 'json',
-					url: "{{oktaTenant}}/api/v1/sessions/me",
+					url: "{{OKTA_TENANT}}/api/v1/sessions/me",
 					xhrFields: {
 						withCredentials: true
 					},
@@ -233,19 +234,6 @@
 				});
 			}
 		});
-	}
-
-	function updateLinks(accessToken) {
-
-		var shortToken = accessToken.substring(0,8);
-
-//		var planetsLink = '<a target="_blank" href="{{proxy_uri}}/planets?access_token=' + accessToken + '">{{proxy_uri}}/planets?access_token=' + shortToken + '...</a>';
-
-// 		$("#planetsLink").html(planetsLink);
-
-//		var moonsLink = '<a target="_blank" href="{{proxy_uri}}/moons?access_token=' + accessToken + '">{{proxy_uri}}/moons?access_token=' + shortToken + '...</a>';
-
-//		$("#moonsLink").html(moonsLink);
 	}
 
 	</script>

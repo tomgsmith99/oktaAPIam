@@ -1,9 +1,9 @@
 // Okta API Access Management
 
 ////////////////////////////////////////////////////
-global.__base = __dirname + '/';
+require('dotenv').config();
 
-var config = require(__base + ".env.js");
+require('./cfg.js');
 
 var bodyParser = require('body-parser');
 
@@ -15,25 +15,26 @@ var session = require("express-session");
 
 ///////////////////////////////////////////////////
 
-if (process.env.HOST == "LOCALHOST") {
-	require('dotenv').config()
-}
-
-console.log("the value of SOME_VAR is " + process.env.SOME_VAR)
-
 // SET UP WEB SERVER
 const app = express();
 
 app.use(express.static('public'));
 
-app.use(session({ secret: config.SECRET, cookie: { maxAge: 60000 }}));
+app.use(session({ secret: SESSION_SECRET, cookie: { maxAge: SESSION_MAX_AGE }}));
 
 app.use(bodyParser.json());
 
-require(__base + 'routes.js')(app);
+require('./routes.js')(app);
 
 var port = process.env.PORT || 3090
 
 app.listen(port, function () {
 	console.log('App listening on port ' + port);
+
+	showSettings();
 });
+
+function showSettings() {
+	console.log("The OAUTH path is: " + OAUTH_PATH)
+}
+
