@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+{{head}}
+
+</head>
+
+<body>
+<!-- Wrapper -->
+<div class="container">
+
+{{nav}}
+
+	<div class="well" style="background-color: rgb(234, 239, 247)">
+		<div class="row" style="vertical-align: top">
+			<div class="col-md-6" style="vertical-align: top">
+
+				<h4>Okta + Apigee</h4>
+
+				<p>In this example, Apigee is proxying a "solar system" API hosted on heroku. When a resource is requested, Apigee is looking for a jwt - an Okta access token - in the header of the request. Apigee verifies the jwt against the key from Okta's well-known endpoint. If the jwt is verified and contains the proper scopes, then the request is passed on to the target API endpoint.
+				</p>
+
+				<p id = "getStarted">Just authenticate as one of the users on the right to get started.</p>
+
+				<div class="alert alert-success" id="successfulAuth" style="display: none">
+					<strong>Success!</strong> User has successfully authenticated and gotten an access token. The access token is sitting in a user session on the server. Click one of the okta-solar-system urls to test the access token.
+				</div>
+
+				<div id = "introspectResults">
+					<div class = "panel panel-success">
+						<div class = "panel-heading">Access token, inspected: </div>
+						<div class = "panel-body" id="inspectedToken">[none]</div>
+					</div>
+				</div>
+
+
+				<div class="panel panel-info">
+					<div class="panel-heading">
+						<h3 class="panel-title">readme</h3>
+					</div>
+					<div class="panel-body">
+						<p>In this scenario, one user (Carl Sagan) is subscribed to the "silver" level of access, which means he will be able to access the /planets endpoint with his access token by virtue of the "api-read-silver" scope. Okta will mint the access token and include the "api-read-silver" scope because Carl belongs to the "silverSubscribers" group in Okta.</p>
+
+						<p>Similarly, another user (Jodi Foster) is subscribed to the "gold" level of access, which means she will be able to access the /moons endpoint, and she will also be able to access the /planets endpoint by virtue of the scopes included in her access token.</p>
+
+						<p>Try clicking on the links as an unauthenticated user, and then as Carl and Jodi to get a sense of how the access tokens work with the API endpoints.</p>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="col-md-6">
+
+				<div class = "panel panel-default">
+					<div class = "panel-heading">
+						SILVER ACCESS: A list of the planets
+					</div>
+					<div class = "panel-body">
+						<div class = "row">
+							<div class = "col-sm-6">
+								<p>username: carl.sagan
+								<br>
+								password: mars</p>
+							</div>
+							<div class = "col-sm-6" style="text-align: center;">
+								<button type="button" class="btn btn-default" onclick="redirectToOkta('silver')">authenticate</button>
+							</div>
+						</div>
+
+						<span id = "planetsLink">endpoint: {{proxy_uri}}/planets</span>
+
+						<div style= "text-align: center; padding-top: 10px">
+							<button type="button" class="btn btn-info" onclick="getData('planets')">show me the planets!</button>
+						</div>
+
+						<div class="panel panel-primary" style ="margin-top:10px">
+							<div class="panel-heading">
+								<h3 class="panel-title">Planets</h3>
+							</div>
+							<div class="panel-body" id = "results_planets"></div>
+						</div>
+					</div>
+				</div>
+
+				<div class = "panel panel-warning">
+					<div class = "panel-heading">
+						GOLD Access: A list of (selected) moons
+					</div>
+					<div class = "panel-body">
+						<div class = "row">
+							<div class = "col-sm-6">
+								<p>username: jodi.foster
+								<br>
+								password: mars</p>
+							</div>
+							<div class = "col-sm-6" style="text-align: center;">
+								<button type="button" class="btn btn-warning" onclick="redirectToOkta('gold')">authenticate</button>
+							</div>
+						</div>
+						<span id = "moonsLink">endpoint: {{proxy_uri}}/moons</span>
+
+						<div style= "text-align: center; padding-top: 10px">
+							<button type="button" class="btn btn-info" onclick="getData('moons')">show me some moons!</button>
+						</div>
+
+						<div class="panel panel-primary" style ="margin-top:10px">
+							<div class="panel-heading">
+								<h3 class="panel-title">Moons</h3>
+							</div>
+							<div class="panel-body" id = "results_moons"></div>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
+	</div>
+
+</div>
+</body>
+</html>
