@@ -188,7 +188,7 @@
 			else {
 				console.log("signed the user out successfully.");
 
-				var uri = '{{OAUTH_PATH}}authorize?response_type=code id_token&client_id={{CLIENT_ID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=openid';
+				var uri = '{{OKTA_OAUTH_PATH}}authorize?response_type=code id_token&client_id={{CLIENT_ID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=openid';
 
 				if (level == "silver" || level == "gold") { uri += " api-read-silver"; };
 

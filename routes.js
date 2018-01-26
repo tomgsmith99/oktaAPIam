@@ -30,7 +30,7 @@ module.exports = function (app) {
 		// exchange the authorization code
 		// for an access token
 
-		var url = OAUTH_PATH + "token";
+		var url = OKTA_OAUTH_PATH + "token";
 
 		var redirect_uri = getRedirectURI(req.session.partner);
 
@@ -68,7 +68,7 @@ module.exports = function (app) {
 			// send the access token to the introspection endpoint
 			// (for illustration purposes only)
 
-			url = OAUTH_PATH + "introspect";
+			url = OKTA_OAUTH_PATH + "introspect";
 
 			var options = { method: 'POST',
 				url: url,
@@ -147,7 +147,7 @@ module.exports = function (app) {
 			head = head.replace(/{{title}}/g, title);
 
 			head = head.replace(/{{OKTA_TENANT}}/g, OKTA_TENANT);
-			head = head.replace(/{{OAUTH_PATH}}/g, OAUTH_PATH);
+			head = head.replace(/{{OKTA_OAUTH_PATH}}/g, OKTA_OAUTH_PATH);
 			head = head.replace(/{{CLIENT_ID}}/g, getClientID(partner));
 			head = head.replace(/{{redirect_uri}}/g, getRedirectURI(partner));
 			head = head.replace(/{{partner}}/g, partner);
@@ -155,21 +155,27 @@ module.exports = function (app) {
 			fs.readFile('./html/nav.html', 'utf8', (error, nav) => {
 				if (error) { throw new Error(error) }
 
-				fs.readFile('./html/' + partner + '_nav.html', 'utf8', (error, localNav) => {
+				fs.readFile('./html/' + partner + '_dropdown.html', 'utf8', (error, localNav) => {
 					if (error) { throw new Error(error) }
 
 					nav = nav.replace(/{{localNav}}/g, localNav);
 
-					fs.readFile('./html/' + partner + '.html', 'utf8', (error, webPage) => {
+					fs.readFile('./html/' + partner + '.html', 'utf8', (error, partner_content) => {
 						if (error) { throw new Error(error) }
 
-							webPage = webPage.replace(/{{head}}/g, head);
+						fs.readFile('./html/main.html', 'utf8', (error, webPage) => {
+							if (error) { throw new Error(error) }
 
-							webPage = webPage.replace(/{{nav}}/g, nav);
+								webPage = webPage.replace(/{{partner_content}}/g, partner_content);
 
-							webPage = webPage.replace(/{{proxy_uri}}/g, getProxyURI(partner));
+								webPage = webPage.replace(/{{head}}/g, head);
 
-							return callback(null, webPage);
+								webPage = webPage.replace(/{{nav}}/g, nav);
+
+								webPage = webPage.replace(/{{proxy_uri}}/g, getProxyURI(partner));
+
+								return callback(null, webPage);
+						});
 					});
 				});
 			});
