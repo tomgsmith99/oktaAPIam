@@ -155,10 +155,10 @@ module.exports = function (app) {
 			fs.readFile('./html/nav.html', 'utf8', (error, nav) => {
 				if (error) { throw new Error(error) }
 
-				fs.readFile('./html/' + partner + '_dropdown.html', 'utf8', (error, localNav) => {
+				fs.readFile('./html/' + partner + '_dropdown.html', 'utf8', (error, dropdown) => {
 					if (error) { throw new Error(error) }
 
-					nav = nav.replace(/{{localNav}}/g, localNav);
+					nav = nav.replace(/{{dropdown}}/g, dropdown);
 
 					fs.readFile('./html/' + partner + '.html', 'utf8', (error, partner_content) => {
 						if (error) { throw new Error(error) }
@@ -183,7 +183,17 @@ module.exports = function (app) {
 	}
 
 	function getClientID(partner) {
+		if (typeof _CFG[partner.toUpperCase()].CLIENT_ID === 'undefined') {
+			return OKTA_CLIENT_ID
+		}
 		return _CFG[partner.toUpperCase()].CLIENT_ID
+	}
+
+	function getClientSecret(partner) {
+		if (typeof _CFG[partner.toUpperCase()].CLIENT_SECRET === 'undefined') {
+			return OKTA_CLIENT_SECRET
+		}
+		return _CFG[partner.toUpperCase()].CLIENT_SECRET
 	}
 
 	function getProxyURI(partner) {
@@ -198,7 +208,7 @@ module.exports = function (app) {
 
 		partner = partner.toUpperCase();
 
-		var x = _CFG[partner].CLIENT_ID + ":" + _CFG[partner].CLIENT_SECRET;
+		var x = getClientID(partner) + ":" + getClientSecret(partner);
 
 		var y = new Buffer(x).toString('base64');
 
