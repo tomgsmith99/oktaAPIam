@@ -137,7 +137,7 @@
 
 				var obj = JSON.parse(data);
 
-				$("#inspectedToken").html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
+				$("#decodedToken").html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
 
 				$("#introspectResults").show();
 
@@ -161,6 +161,8 @@
 				var obj = JSON.parse(data);
 
 				console.log("the results are: " + data);
+
+				//TODO: parse this response for a status code
 
 				$("#results_" + endpoint).html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
 			}
@@ -190,9 +192,9 @@
 
 				var uri = '{{OKTA_OAUTH_PATH}}authorize?response_type=code id_token&client_id={{CLIENT_ID}}&redirect_uri={{redirect_uri}}&state=someState&nonce=someNonce&prompt=login&scope=openid';
 
-				if (level == "silver" || level == "gold") { uri += " api-read-silver"; };
+				if (level == "silver" || level == "gold") { uri += " http://myapp.com/scp/silver"; };
 
-				if (level == "gold") { uri += " api-read-gold"; }
+				if (level == "gold") { uri += " http://myapp.com/scp/gold"; }
 
 				localStorage.setItem("authURI", uri);
 

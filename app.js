@@ -37,4 +37,3 @@ app.listen(port, function () {
 function showSettings() {
 	console.log("The OAUTH path is: " + OKTA_OAUTH_PATH)
 }
-

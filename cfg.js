@@ -1,6 +1,11 @@
 
 global._CFG = {}
 
+global._CFG.APIGEE = {}
+global._CFG.APIGEE.CLIENT_ID = process.env.APIGEE_CLIENT_ID
+global._CFG.APIGEE.CLIENT_SECRET = process.env.APIGEE_CLIENT_SECRET
+global._CFG.APIGEE.PROXY_URI = process.env.APIGEE_PROXY_URI
+
 global._CFG.GOOGLE = {}
 global._CFG.GOOGLE.CLIENT_ID = process.env.GOOGLE_CLIENT_ID
 global._CFG.GOOGLE.CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
@@ -20,4 +25,4 @@ global.REDIRECT_URI_BASE = process.env.REDIRECT_URI_BASE
 global.SESSION_SECRET = process.env.SESSION_SECRET
 global.SESSION_MAX_AGE = parseInt(process.env.SESSION_MAX_AGE)
 
-global.OKTA_OAUTH_PATH = OKTA_TENANT + "/oauth2/" + OKTA_AUTH_SERVER_ID + "/v1/";
+global.OKTA_OAUTH_PATH = OKTA_TENANT + "/oauth2/" + OKTA_AUTH_SERVER_ID + "/v1/"
