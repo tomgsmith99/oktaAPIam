@@ -30,10 +30,4 @@ var port = process.env.PORT || 3090
 
 app.listen(port, function () {
 	console.log('App listening on port ' + port);
-
-	showSettings();
 });
-
-function showSettings() {
-	console.log("The OAUTH path is: " + OKTA_OAUTH_PATH)
-}
