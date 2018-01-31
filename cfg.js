@@ -6,6 +6,7 @@ global._CFG.APIGEE.PROXY_URI = process.env.APIGEE_PROXY_URI
 global._CFG.APIGEE.DISPLAY_NAME = "Apigee"
 global._CFG.APIGEE.LINKS = []
 global._CFG.APIGEE.LINKS.push({name: "Integration Guide", href: "https://docs.google.com/document/d/1p1nFTU0SXu2yvfEZeHlilCjbUT2-11Xh3yAUa8vBU5A"})
+global._CFG.APIGEE.LINKS.push({name: "Architecture", href: "https://drive.google.com/open?id=1U_IiBqbijO9uNlDpQjKhwMdThSZUUzwd"})
 
 global._CFG.GOOGLE = {}
 global._CFG.GOOGLE.PROXY_URI = process.env.GOOGLE_PROXY_URI

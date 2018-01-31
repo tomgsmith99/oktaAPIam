@@ -98,7 +98,7 @@ module.exports = function (app) {
 
 		console.log("the requested endpoint is: " + endpoint);
 
-		console.log("the access_token token is: " + req.session.access_token);
+		console.log("the access_token token is: \n" + req.session.access_token + "\n");
 
 		// send the access token to the requested API endpoint
 
@@ -135,8 +135,6 @@ module.exports = function (app) {
 	});
 
 	function getPage(partner, callback) {
-
-
 
 		fs.readFile('./html/main.html', 'utf8', (error, page) => {
 
@@ -181,7 +179,6 @@ module.exports = function (app) {
 		if (typeof _CFG[partner.toUpperCase()].DISPLAY_NAME === 'undefined') {
 			return partner
 		}
-
 		return _CFG[partner.toUpperCase()].DISPLAY_NAME
 	}
 
@@ -198,7 +195,6 @@ module.exports = function (app) {
 		for (i = 0; i < links_arr.length; i++) {
 			links += "\n<li><a href ='" + links_arr[i].href + "' target = '_blank'>" + links_arr[i].name + "</a></li>"
 		}
-
 		return links
 	}
 
