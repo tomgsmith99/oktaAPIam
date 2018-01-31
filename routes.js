@@ -136,48 +136,29 @@ module.exports = function (app) {
 
 	function getPage(partner, callback) {
 
-		var title = "Okta API Access Management";
 
-		if (partner != "index") {
-			title += " with " + titleCase(partner);
-		}
 
-		fs.readFile('./html/head.html', 'utf8', (error, head) => {
+		fs.readFile('./html/main.html', 'utf8', (error, page) => {
 
-			head = head.replace(/{{title}}/g, title);
+			if (error) { throw new Error(error) }
 
-			head = head.replace(/{{OKTA_TENANT}}/g, OKTA_TENANT);
-			head = head.replace(/{{OKTA_OAUTH_PATH}}/g, OKTA_OAUTH_PATH);
-			head = head.replace(/{{CLIENT_ID}}/g, getClientID(partner));
-			head = head.replace(/{{redirect_uri}}/g, getRedirectURI(partner));
-			head = head.replace(/{{partner}}/g, partner);
+			fs.readFile('./html/' + partner + '.html', 'utf8', (error, partner_content) => {
 
-			fs.readFile('./html/nav.html', 'utf8', (error, nav) => {
 				if (error) { throw new Error(error) }
 
-				fs.readFile('./html/' + partner + '_dropdown.html', 'utf8', (error, dropdown) => {
-					if (error) { throw new Error(error) }
+				page = page.replace(/{{title}}/g, getTitle(partner));
 
-					nav = nav.replace(/{{dropdown}}/g, dropdown);
+				page = page.replace(/{{OKTA_TENANT}}/g, OKTA_TENANT);
+				page = page.replace(/{{OKTA_OAUTH_PATH}}/g, OKTA_OAUTH_PATH);
+				page = page.replace(/{{CLIENT_ID}}/g, getClientID(partner));
+				page = page.replace(/{{redirect_uri}}/g, getRedirectURI(partner));
+				page = page.replace(/{{partner}}/g, partner);
+				page = page.replace(/{{DISPLAY_NAME}}/g, getDisplayName(partner));
+				page = page.replace(/{{partner_links}}/g, getLinks(partner));
+				page = page.replace(/{{partner_content}}/g, partner_content);
+				page = page.replace(/{{proxy_uri}}/g, getProxyURI(partner));
 
-					fs.readFile('./html/' + partner + '.html', 'utf8', (error, partner_content) => {
-						if (error) { throw new Error(error) }
-
-						fs.readFile('./html/main.html', 'utf8', (error, webPage) => {
-							if (error) { throw new Error(error) }
-
-								webPage = webPage.replace(/{{partner_content}}/g, partner_content);
-
-								webPage = webPage.replace(/{{head}}/g, head);
-
-								webPage = webPage.replace(/{{nav}}/g, nav);
-
-								webPage = webPage.replace(/{{proxy_uri}}/g, getProxyURI(partner));
-
-								return callback(null, webPage);
-						});
-					});
-				});
+				return callback(null, page);
 			});
 		});
 	}
@@ -194,6 +175,31 @@ module.exports = function (app) {
 			return OKTA_CLIENT_SECRET
 		}
 		return _CFG[partner.toUpperCase()].CLIENT_SECRET
+	}
+
+	function getDisplayName(partner) {
+		if (typeof _CFG[partner.toUpperCase()].DISPLAY_NAME === 'undefined') {
+			return partner
+		}
+
+		return _CFG[partner.toUpperCase()].DISPLAY_NAME
+	}
+
+	function getLinks(partner) {
+
+		links = "<li><a href='/" + partner + "'>Demo</a></li>"
+
+		if (typeof _CFG[partner.toUpperCase()].LINKS === 'undefined') {
+			return links
+		}
+
+		links_arr = _CFG[partner.toUpperCase()].LINKS
+
+		for (i = 0; i < links_arr.length; i++) {
+			links += "\n<li><a href ='" + links_arr[i].href + "' target = '_blank'>" + links_arr[i].name + "</a></li>"
+		}
+
+		return links
 	}
 
 	function getProxyURI(partner) {
@@ -219,7 +225,7 @@ module.exports = function (app) {
 		console.log("the OAUTH_PATH is: " + getOAuthPath())
 	}
 
-	function titleCase(string) {
-		return string.charAt(0).toUpperCase() + string.slice(1);
+	function getTitle(partner) {
+		return "Okta API Access Management with " + getDisplayName(partner)
 	}
 }
