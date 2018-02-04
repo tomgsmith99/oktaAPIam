@@ -1,6 +1,11 @@
 
 global._CFG = {}
 
+global._CFG.AWS = {}
+global._CFG.AWS.PROXY_URI = process.env.AWS_PROXY_URI
+global._CFG.AWS.DISPLAY_NAME = "Amazon API Gateway"
+global._CFG.APIGEE.LINKS = []
+
 global._CFG.APIGEE = {}
 global._CFG.APIGEE.PROXY_URI = process.env.APIGEE_PROXY_URI
 global._CFG.APIGEE.DISPLAY_NAME = "Apigee"
