@@ -1,0 +1,5 @@
+
+				<h4>Okta + Amazon API Gateway</h4>
+
+				<p>In this example, Amazon API Gateway is proxying the Okta "solar system" API, hosted on heroku. When a resource is requested, an Amazon lambda function is looking for a jwt - an Okta access token - in the header of the request. The lambda function verifies the jwt against the key from Okta's well-known endpoint. If the jwt is verified and contains the proper scopes, then the request is passed on to the target API endpoint.
+				</p>

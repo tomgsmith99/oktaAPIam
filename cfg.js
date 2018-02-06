@@ -4,7 +4,10 @@ global._CFG = {}
 global._CFG.AWS = {}
 global._CFG.AWS.PROXY_URI = process.env.AWS_PROXY_URI
 global._CFG.AWS.DISPLAY_NAME = "Amazon API Gateway"
-global._CFG.APIGEE.LINKS = []
+global._CFG.AWS.LINKS = []
+global._CFG.AWS.LINKS.push({name: "Integration Guide", href: "https://docs.google.com/document/d/1JXuopuDhHV0ky_KJr0qgAq0hjcil1NBqh2WwCWq-KeI/view?usp=sharing"})
+global._CFG.AWS.LINKS.push({name: "Flow: Getting an access token", href: "https://drive.google.com/file/d/1ENgxK5dvyvxAuk1VNqShI2v10US2W6VX/view?usp=sharing"})
+global._CFG.AWS.LINKS.push({name: "Flow: Token -> AWS API Gateway", href: "https://drive.google.com/file/d/13JHxmLQCumR6WqIC2clvhz3-09dKOkki/view?usp=sharing"})
 
 global._CFG.APIGEE = {}
 global._CFG.APIGEE.PROXY_URI = process.env.APIGEE_PROXY_URI

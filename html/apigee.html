@@ -3,3 +3,5 @@
 
 				<p>In this example, Apigee is proxying the Okta "solar system" API, hosted on heroku. When a resource is requested, Apigee is looking for a jwt - an Okta access token - in the header of the request. Apigee verifies the jwt against the key from Okta's well-known endpoint. If the jwt is verified and contains the proper scopes, then the request is passed on to the target API endpoint.
 				</p>
+
+				<p><i>Please note that Apigee's jwt verifier is in beta as of February 2018.</i></p>
