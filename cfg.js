@@ -14,7 +14,8 @@ global._CFG.APIGEE.PROXY_URI = process.env.APIGEE_PROXY_URI
 global._CFG.APIGEE.DISPLAY_NAME = "Apigee"
 global._CFG.APIGEE.LINKS = []
 global._CFG.APIGEE.LINKS.push({name: "Integration Guide", href: "https://docs.google.com/document/d/1p1nFTU0SXu2yvfEZeHlilCjbUT2-11Xh3yAUa8vBU5A"})
-global._CFG.APIGEE.LINKS.push({name: "Architecture", href: "https://drive.google.com/open?id=1U_IiBqbijO9uNlDpQjKhwMdThSZUUzwd"})
+global._CFG.APIGEE.LINKS.push({name: "Flow: Getting an access token", href: "https://drive.google.com/file/d/1ENgxK5dvyvxAuk1VNqShI2v10US2W6VX/view?usp=sharing"})
+global._CFG.APIGEE.LINKS.push({name: "Flow: Token -> Apigee", href: "https://drive.google.com/file/d/1JjYsjQEHvo1nCIRdwOQwIePmiK3pzPWB/view?usp=sharing"})
 
 global._CFG.GOOGLE = {}
 global._CFG.GOOGLE.PROXY_URI = process.env.GOOGLE_PROXY_URI
