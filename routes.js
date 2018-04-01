@@ -156,7 +156,12 @@ module.exports = function (app) {
 				page = page.replace(/{{partner_content}}/g, partner_content);
 				page = page.replace(/{{proxy_uri}}/g, getProxyURI(partner));
 
-				return callback(null, page);
+				fs.readFile('./html/leftCol.html', 'utf8', (error, left_col) => {
+
+					page = page.replace(/{{left_col}}/g, left_col)
+
+					return callback(null, page);
+				});
 			});
 		});
 	}

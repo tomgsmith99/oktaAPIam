@@ -31,6 +31,12 @@ global._CFG.MULESOFT.LINKS = []
 global._CFG.MULESOFT.LINKS.push({name: "Integration Guide", href: "https://docs.google.com/document/d/1et0ayMddVoz7Hnx4ullU_cC9ah_GLisFDXBhHuSH1RU"})
 global._CFG.MULESOFT.LINKS.push({name: "Architecture", href: "https://drive.google.com/file/d/1fTxk5wsWlEMfFqft1d_ap3k81HBbBWW6"})
 
+global._CFG.F5 = {}
+global._CFG.F5.PROXY_URI = process.env.F5_PROXY_URI
+global._CFG.F5.DISPLAY_NAME = "F5"
+global._CFG.F5.LINKS = []
+global._CFG.F5.LINKS.push({name: "Architecture", href: "https://drive.google.com/file/d/1ZUAqZznlpeAg9y_7VFha1YLH_69p-NWb"})
+
 global.OKTA_CLIENT_ID = process.env.OKTA_CLIENT_ID
 global.OKTA_CLIENT_SECRET = process.env.OKTA_CLIENT_SECRET
 global.OKTA_AUTH_SERVER_ID = process.env.OKTA_AUTH_SERVER_ID
