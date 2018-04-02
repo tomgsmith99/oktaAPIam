@@ -28,7 +28,7 @@ global._CFG.MULESOFT = {}
 global._CFG.MULESOFT.PROXY_URI = process.env.MULESOFT_PROXY_URI
 global._CFG.MULESOFT.DISPLAY_NAME = "Mulesoft"
 global._CFG.MULESOFT.LINKS = []
-global._CFG.MULESOFT.LINKS.push({name: "Integration Guide", href: "https://docs.google.com/document/d/1et0ayMddVoz7Hnx4ullU_cC9ah_GLisFDXBhHuSH1RU"})
+global._CFG.MULESOFT.LINKS.push({name: "Integration Guide", href: "https://docs.google.com/document/d/1O9K7t42hDJHaGtCybdtWwKcH0_pXATE0GeMLStIczC8"})
 global._CFG.MULESOFT.LINKS.push({name: "Architecture", href: "https://drive.google.com/file/d/1fTxk5wsWlEMfFqft1d_ap3k81HBbBWW6"})
 
 global._CFG.F5 = {}
