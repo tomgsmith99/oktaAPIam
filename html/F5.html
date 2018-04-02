@@ -1,8 +1,6 @@
 
 				<h4>Okta + F5 OIDC</h4>
 
-				<p>In this example, we are treating the Solar System resources as an application, rather than as an API with discrete resources. F5 is a reverse proxy in front of the solar system application. The F5 appliance will check for a valid access token in any request to the application, and will pass through valid requests.
+				<p>In this example, F5 is a reverse proxy in front of the solar system application. The F5 appliance will check for a valid local session for the user. If the user does not have a local session, F5 will redirect the user to Okta to authenticate (OIDC). Okta will redirect the user back to F5 after successful authentication, and then F5 will serve the application.</p>
 
-				So, in this case, Carl Sagan will be able to access both endpoints.
-
-				</p>
+				<p>Authenticate as Carl Sagan to see how this works.</p>

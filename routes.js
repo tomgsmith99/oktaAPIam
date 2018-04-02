@@ -11,9 +11,21 @@ var session = require("express-session");
 
 module.exports = function (app) {
 
+	app.get('/F5', function(req, res, next) {
+
+		getPage("F5", "appAccess", function(err, webPage) {
+			if (err) { throw new Error(err) }
+
+			req.session.partner = req.params.partner;
+
+			res.send(webPage);
+		});
+	});
+
+
 	app.get('/:partner', function(req, res, next) {
 
-		getPage(req.params.partner, function(err, webPage) {
+		getPage(req.params.partner, "apiAM", function(err, webPage) {
 			if (err) { throw new Error(err) }
 
 			req.session.partner = req.params.partner;
@@ -134,7 +146,7 @@ module.exports = function (app) {
 		})
 	});
 
-	function getPage(partner, callback) {
+	function getPage(partner, solutionType, callback) {
 
 		fs.readFile('./html/main.html', 'utf8', (error, page) => {
 
@@ -154,14 +166,32 @@ module.exports = function (app) {
 				page = page.replace(/{{DISPLAY_NAME}}/g, getDisplayName(partner));
 				page = page.replace(/{{partner_links}}/g, getLinks(partner));
 				page = page.replace(/{{partner_content}}/g, partner_content);
-				page = page.replace(/{{proxy_uri}}/g, getProxyURI(partner));
 
-				fs.readFile('./html/leftCol.html', 'utf8', (error, left_col) => {
+				if (solutionType == "apiAM") {
+					fs.readFile('./html/left_col.html', 'utf8', (error, left_col) => {
 
-					page = page.replace(/{{left_col}}/g, left_col)
+						page = page.replace(/{{left_col}}/g, left_col)
 
-					return callback(null, page);
-				});
+						fs.readFile('./html/right_col.html', 'utf8', (error, right_col) => {
+
+							page = page.replace(/{{right_col}}/g, right_col)
+							page = page.replace(/{{proxy_uri}}/g, getProxyURI(partner));
+
+							return callback(null, page);
+						});
+					});
+				}
+				else {
+					page = page.replace(/{{left_col}}/g, "")
+
+					fs.readFile('./html/right_col/' + partner + '.html', 'utf8', (error, right_col) => {
+
+						page = page.replace(/{{right_col}}/g, right_col)
+						page = page.replace(/{{proxy_uri}}/g, getProxyURI(partner));
+
+						return callback(null, page);
+					});
+				}
 			});
 		});
 	}
