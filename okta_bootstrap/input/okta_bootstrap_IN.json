@@ -1,0 +1,32 @@
+{
+	"OKTA_TENANT": {
+		"hint": "please enter in this format: https://dev-123456.oktapreview.com",
+		"saveToOutput": true,
+		"objType": "string"
+	},
+	"OKTA_API_TOKEN": {
+		"objType": "string"
+	},
+	"TAG": {
+		"comment": "a unique string to help identify objects created by this bootstrap session",
+		"saveToOutput": true,
+		"default": "{{GENERATE_TAG}}",
+		"objType": "string"
+	},
+	"SECOND_EMAIL": {
+		"saveToOutput": true,
+		"hint": "This email address will be used as the secondary email address (not userid) for all fake users. Use a valid email address if you want to be able to do things like reset the password for fake users.",
+		"objType": "string"
+	},
+	"OKTA_GROUP_01": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:user_group",
+		"default": {
+			"profile": {
+				"name": "solar_system_users {{TAG}}",
+				"description": "All solar system users"
+			}
+		}
+	}
+}

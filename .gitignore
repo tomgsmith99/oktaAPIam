@@ -3,3 +3,7 @@
 npm-debug.log
 .env
 !.env_example
+package-lock.json
+/okta_bootstrap/output
+/okta_bootstrap/input/okta_bootstrap_IN_BAK.json
+/okta_bootstrap/input/okta_bootstrap_IN_ORIG.json

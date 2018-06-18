@@ -1,9 +1,7 @@
 
-var bodyParser = require('body-parser');
+var bodyParser = require("body-parser");
 
-var fs = require('fs');
-
-var request = require('request');
+var request = require("request");
 
 var session = require("express-session");
 
