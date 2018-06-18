@@ -1,0 +1,26 @@
+{
+	"aws": {
+		"proxy_uri": "",
+		"display_name": "Amazon API Gateway"
+	},
+	"apigee": {
+		"proxy_uri": "",
+		"display_name": "Apigee"
+	},
+	"f5": {
+		"proxy_uri": "",
+		"display_name": "F5"
+	},
+	"gcp": {
+		"proxy_uri": "",
+		"display_name": "Google Cloud Platform"
+	},
+	"mulesoft": {
+		"proxy_uri": "http://okta-solar-system.cloudhub.io",
+		"display_name": "Mulesoft"
+	},
+	"tyk": {
+		"proxy_uri": "",
+		"display_name": "tyk.io"
+	}
+}

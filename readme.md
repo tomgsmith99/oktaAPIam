@@ -14,8 +14,6 @@ If you just want to get started and see what this is all about, you just need th
 
 With those items in hand, you can install the node app:
 
-*************SETUP.JS*****************
-
 ```javascript
 npm install
 ```

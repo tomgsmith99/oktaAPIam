@@ -1,9 +1,11 @@
 
-var bodyParser = require("body-parser");
+var bodyParser = require("body-parser")
 
-var request = require("request");
+var fs = require("fs")
 
-var session = require("express-session");
+var request = require("request")
+
+var session = require("express-session")
 
 //*******************************************/
 
@@ -161,7 +163,7 @@ module.exports = function (app) {
 				page = page.replace(/{{CLIENT_ID}}/g, getClientID(partner));
 				page = page.replace(/{{redirect_uri}}/g, getRedirectURI(partner));
 				page = page.replace(/{{partner}}/g, partner);
-				page = page.replace(/{{DISPLAY_NAME}}/g, getDisplayName(partner));
+				page = page.replace(/{{DISPLAY_NAME}}/g, gateways[partner].display_name)
 				page = page.replace(/{{partner_links}}/g, getLinks(partner));
 				page = page.replace(/{{partner_content}}/g, partner_content);
 
@@ -255,6 +257,8 @@ module.exports = function (app) {
 	}
 
 	function getTitle(partner) {
-		return "Okta API Access Management with " + getDisplayName(partner)
+		// return "Okta API Access Management with " + getDisplayName(partner)
+		return "Okta API Access Management with " + gateways[partner].display_name
+
 	}
 }
