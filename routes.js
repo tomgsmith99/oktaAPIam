@@ -3,13 +3,66 @@ var bodyParser = require("body-parser")
 
 var fs = require("fs")
 
+const OktaJwtVerifier = require('@okta/jwt-verifier')
+
 var request = require("request")
 
 var session = require("express-session")
 
 //*******************************************/
 
+const oktaJwtVerifier = new OktaJwtVerifier({
+	issuer: CONFIG.OKTA_AS_PATH_BASE
+})
+
 module.exports = function (app) {
+
+	app.get('/', function(req, res, next) {
+
+		fs.readFile('./html/index.html', 'utf8', (error, page) => {
+
+			// console.log("the gateway is: " + req.session.partner)
+
+			evaluate_vars(page, (error, page) => {
+				if (error) { throw new Error(error) }
+
+				res.send(page)
+
+			})
+
+			// page = evaluate_vars(page)
+
+			// set_proxy_uris(page)
+
+			// page = page.replace(/{{OKTA_TENANT}}/g, CONFIG.OKTA_TENANT)
+			// page = page.replace(/{{SILVER_USERNAME}}/g, CONFIG.SILVER_USERNAME)
+			// page = page.replace(/{{FAKE_USER_PASSWORD}}/g, CONFIG.FAKE_USER_PASSWORD)
+
+
+			// if (error) { throw new Error(error) }
+
+
+		})
+
+		// res.send("<p>this is the callback page</p>")
+	})
+
+	// app.get('/authorization-code/callback', function(req, res, next) {
+
+	// 	fs.readFile('./html/callback.html', 'utf8', (error, page) => {
+
+	// 		console.log("the gateway is: " + req.session.partner)
+
+	// 		page = page.replace(/{{GATEWAY}}/g, req.session.partner)
+
+	// 		if (error) { throw new Error(error) }
+
+	// 		res.send(page)
+
+	// 	})
+
+	// 	// res.send("<p>this is the callback page</p>")
+	// })
 
 	app.get('/F5', function(req, res, next) {
 
@@ -23,16 +76,18 @@ module.exports = function (app) {
 	});
 
 
-	app.get('/:partner', function(req, res, next) {
+	// app.get('/:partner', function(req, res, next) {
 
-		getPage(req.params.partner, "apiAM", function(err, webPage) {
-			if (err) { throw new Error(err) }
+	// 	getPage(req.params.partner, "apiAM", function(err, webPage) {
+	// 		if (err) { throw new Error(err) }
 
-			req.session.partner = req.params.partner;
+	// 		req.session.partner = req.params.partner
 
-			res.send(webPage);
-		});
-	});
+	// 		console.log("on the gateway homepage, the gateway in the session is: " + req.session.partner)
+
+	// 		res.send(webPage)
+	// 	})
+	// })
 
 	app.post('/getAccessToken', function(req, res, next) {
 		var code = req.body.code;
@@ -42,25 +97,20 @@ module.exports = function (app) {
 		// exchange the authorization code
 		// for an access token
 
-		var url = OKTA_OAUTH_PATH + "token";
-
-		var redirect_uri = getRedirectURI(req.session.partner);
-
-		console.log("the url is: " + url);
-		console.log("the redirect_uri is: " + redirect_uri);
-
-		var options = { method: 'POST',
-			url: url,
-			qs: 
-				{ grant_type: 'authorization_code',
+		var options = {
+			method: 'POST',
+			url: CONFIG.OKTA_OAUTH_PATH + "token",
+			qs: {
+				grant_type: 'authorization_code',
 				code: code,
-				redirect_uri: redirect_uri
+				redirect_uri: CONFIG.REDIRECT_URI
 			},
-			headers: 
-				{ 'cache-control': 'no-cache',
-				authorization: 'Basic ' + getBasicAuthString(req.session.partner),
-				'content-type': 'application/x-www-form-urlencoded' }
-		};
+			headers: {
+				'cache-control': 'no-cache',
+				authorization: 'Basic ' + getBasicAuthString(),
+				'content-type': 'application/x-www-form-urlencoded'
+			}
+		}
 
 		request(options, function (error, response, body) {
 			if (error) throw new Error(error);
@@ -77,33 +127,70 @@ module.exports = function (app) {
 				req.session.id_token = obj.id_token;
 			}
 
-			// send the access token to the introspection endpoint
-			// (for illustration purposes only)
+			var response_to_browser = {}
 
-			url = OKTA_OAUTH_PATH + "introspect";
+			response_to_browser.access_token = obj.access_token
+			response_to_browser.id_token = obj.id_token
 
-			var options = { method: 'POST',
-				url: url,
-				qs: { token: req.session.access_token },
-				headers:
-				{
-				'cache-control': 'no-cache',
-				authorization: 'Basic ' + getBasicAuthString(req.session.partner),
+			oktaJwtVerifier.verifyAccessToken(obj.id_token)
+			.then(jwt => {
+				console.log("the type of jwt.claims is: " + typeof jwt.claims)
+				response_to_browser.id_token_decoded = jwt.claims
+				console.log(jwt.claims)
 
-				accept: 'application/json',
-				'content-type': 'application/x-www-form-urlencoded' }
-			};
+				oktaJwtVerifier.verifyAccessToken(obj.access_token)
+				.then(jwt => {
+					response_to_browser.access_token_decoded = jwt.claims
 
-			request(options, function (error, response, body) {
-				if (error) throw new Error(error);
+					console.log(jwt.claims)
 
-				console.log("response from Okta: ");
-				console.log(body);
+					console.log("the response to the browser is: ")
+					console.dir(response_to_browser)
 
-				res.json(body);
-			});
-		});
-	});
+					res.json(JSON.stringify(response_to_browser))
+				})
+				.catch(err => {
+					console.log("something went wrong with the access_token validation")
+					console.log(err)
+
+				})
+			})
+			.catch(err => {
+				console.log("something went wrong with the id_token validation")
+				console.log(err)
+			})
+
+
+
+
+
+			// send the access_token to the introspect endpoint to validate it
+			// var options = {
+			// 	method: 'POST',
+			// 	url: CONFIG.OKTA_OAUTH_PATH + "introspect",
+			// 	qs: { token: req.session.access_token },
+			// 	headers: {
+			// 		'cache-control': 'no-cache',
+			// 		authorization: 'Basic ' + getBasicAuthString(),
+			// 		accept: 'application/json', 'content-type': 'application/x-www-form-urlencoded'
+			// 	}
+			// }
+
+			// request(options, function (error, response, body) {
+			// 	if (error) throw new Error(error)
+
+			// 	console.log("response from Okta: ")
+			// 	console.log(body)
+
+			// 	// FOR DEMO PURPOSES ONLY
+			// 	// WITH CODE FLOW YOU SHOULD NOT SEND THE ACCESS TOKEN BACK TO THE BROWSER
+
+			// 	body = JSON.parse(body)
+			// 	body.access_token = req.session.access_token
+			// 	res.json(JSON.stringify(body))
+			// })
+		})
+	})
 
 	app.post('/getData', function(req, res, next) {
 		var endpoint = req.body.endpoint;
@@ -114,18 +201,18 @@ module.exports = function (app) {
 
 		// send the access token to the requested API endpoint
 
-		var url = getProxyURI(req.session.partner) + "/" + req.body.endpoint;
+		var url = GATEWAYS[req.session.partner].proxy_uri + "/" + req.body.endpoint
 
 		var options = { method: 'GET',
 			url: url,
-			headers:
-			{
-			'cache-control': 'no-cache',
-			authorization: "Bearer " + req.session.access_token,
+			headers: {
+				'cache-control': 'no-cache',
+				authorization: "Bearer " + req.session.access_token,
 
-			accept: 'application/json',
-			'content-type': 'application/x-www-form-urlencoded' }
-		};
+				accept: 'application/json',
+				'content-type': 'application/x-www-form-urlencoded'
+			}
+		}
 
 		request(options, function (error, response, body) {
 			if (error) throw new Error(error);
@@ -152,19 +239,22 @@ module.exports = function (app) {
 
 			if (error) { throw new Error(error) }
 
+			page = page.replace(/{{PARTNER}}/g, partner)
+
 			fs.readFile('./html/' + partner + '.html', 'utf8', (error, partner_content) => {
 
 				if (error) { throw new Error(error) }
 
 				page = page.replace(/{{title}}/g, getTitle(partner));
 
-				page = page.replace(/{{OKTA_TENANT}}/g, OKTA_TENANT);
-				page = page.replace(/{{OKTA_OAUTH_PATH}}/g, OKTA_OAUTH_PATH);
-				page = page.replace(/{{CLIENT_ID}}/g, getClientID(partner));
-				page = page.replace(/{{redirect_uri}}/g, getRedirectURI(partner));
+				page = page.replace(/{{HOME}}/g, CONFIG.HOME);
+				page = page.replace(/{{OKTA_TENANT}}/g, CONFIG.OKTA_TENANT);
+				page = page.replace(/{{OKTA_OAUTH_PATH}}/g, CONFIG.OKTA_OAUTH_PATH);
+				page = page.replace(/{{CLIENT_ID}}/g, CONFIG.OKTA_CLIENT_ID);
+				page = page.replace(/{{redirect_uri}}/g, CONFIG.REDIRECT_URI);
 				page = page.replace(/{{partner}}/g, partner);
-				page = page.replace(/{{DISPLAY_NAME}}/g, gateways[partner].display_name)
-				page = page.replace(/{{partner_links}}/g, getLinks(partner));
+				page = page.replace(/{{DISPLAY_NAME}}/g, GATEWAYS[partner].display_name)
+				// page = page.replace(/{{partner_links}}/g, getLinks(partner));
 				page = page.replace(/{{partner_content}}/g, partner_content);
 
 				if (solutionType == "apiAM") {
@@ -174,8 +264,13 @@ module.exports = function (app) {
 
 						fs.readFile('./html/right_col.html', 'utf8', (error, right_col) => {
 
+							if (error) { return callback(error) }
+
+							right_col = right_col.replace(/{{SILVER_USERNAME_SHORT}}/g, CONFIG.SILVER_USERNAME)
+							right_col = right_col.replace(/{{FAKE_USER_PASSWORD}}/g, CONFIG.FAKE_USER_PASSWORD)
+
 							page = page.replace(/{{right_col}}/g, right_col)
-							page = page.replace(/{{proxy_uri}}/g, getProxyURI(partner));
+							page = page.replace(/{{proxy_uri}}/g, GATEWAYS[partner].proxy_uri)
 
 							return callback(null, page);
 						});
@@ -194,13 +289,6 @@ module.exports = function (app) {
 				}
 			});
 		});
-	}
-
-	function getClientID(partner) {
-		if (typeof _CFG[partner.toUpperCase()].CLIENT_ID === 'undefined') {
-			return OKTA_CLIENT_ID
-		}
-		return _CFG[partner.toUpperCase()].CLIENT_ID
 	}
 
 	function getClientSecret(partner) {
@@ -233,23 +321,17 @@ module.exports = function (app) {
 		return links
 	}
 
-	function getProxyURI(partner) {
-		return _CFG[partner.toUpperCase()].PROXY_URI
-	}
-
 	function getRedirectURI(partner) {
 		return REDIRECT_URI_BASE + "/" + partner;
 	}
 
-	function getBasicAuthString(partner) {
+	function getBasicAuthString() {
 
-		partner = partner.toUpperCase();
+		var x = CONFIG.OKTA_CLIENT_ID + ":" + CONFIG.OKTA_CLIENT_SECRET
 
-		var x = getClientID(partner) + ":" + getClientSecret(partner);
+		var y = new Buffer(x).toString('base64')
 
-		var y = new Buffer(x).toString('base64');
-
-		return y;
+		return y
 	}
 
 	function getSettings() {
@@ -258,7 +340,27 @@ module.exports = function (app) {
 
 	function getTitle(partner) {
 		// return "Okta API Access Management with " + getDisplayName(partner)
-		return "Okta API Access Management with " + gateways[partner].display_name
+		return "Okta API Access Management with " + GATEWAYS[partner].display_name
 
 	}
 }
+
+function evaluate_vars(page, callback) {
+	var regex
+	for (var key in CONFIG) {
+		regex = new RegExp('{{' + key + '}}', 'g')
+
+		page = page.replace(regex, CONFIG[key])
+	}
+	return callback(null, page)
+}
+
+// function set_proxy_uris(page) {
+// 	var js = ""
+// 	for (var key in GATEWAYS) {
+// 		console.log(key + ": " + GATEWAYS[key].proxy_uri)
+// 		if (GATEWAYS[key].proxy_uri && GATEWAYS[key].proxy_uri != "") {
+// 			js += "proxy_uris." + key + ": " + GATEWAYS[key].proxy_uri
+// 		}
+// 	}
+// }

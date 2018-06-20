@@ -24,9 +24,9 @@ var bootstrap_obj
 // this global object stores the final settings that the app will use
 // after considering 1) hard-coded values, 2) the bootstrap obj,
 // 3) environment variables
-var config = require("./config/config.json")
+global.CONFIG = require("./config/config.json")
 
-var gateways = require("./config/gateways.json")
+global.GATEWAYS = require("./config/gateways.json")
 
 const app = express()
 
@@ -85,23 +85,23 @@ async function init() {
 }
 
 function assign_config_vals(with_bootstrap) {
-	for (key in config) {
+	for (var key in CONFIG) {
 		var source = ""
 		console.log("----------------")
-		if (config[key] != "") {
+		if (CONFIG[key] != "") {
 			source = "config.json"
 		}
 		else if (with_bootstrap && lookup_bootstrap_val(key) != "") {
 			source = "okta_bootstrap_OUT.json"
-			config[key] = lookup_bootstrap_val(key)
+			CONFIG[key] = lookup_bootstrap_val(key)
 		}
 		else if (process.env[key]) {
 			source = "process.env"
-			config[key] = process.env[key]
+			CONFIG[key] = process.env[key]
 		}
 
-		if (config[key] != "") {
-			console.log("Found a value for " + key + ": " + config[key])
+		if (CONFIG[key] != "") {
+			console.log("Found a value for " + key + ": " + CONFIG[key])
 			console.log("Source: " + source)
 		}
 		else {
@@ -109,14 +109,33 @@ function assign_config_vals(with_bootstrap) {
 		}
 	}
 
-	console.log("Finished building config...")
+	console.log("Finished loading static values...")
+	console.log("Building larger values from initial input...")
+
+	CONFIG.OKTA_AS_PATH_BASE = CONFIG.OKTA_TENANT + "/oauth2/" + CONFIG.OKTA_AUTH_SERVER_ID
+
+	CONFIG.OKTA_OAUTH_PATH = CONFIG.OKTA_AS_PATH_BASE + "/v1/"
+
+	var arrX, arrY
+
+	if (CONFIG.REDIRECT_URI.includes("http://")) {
+		arrX = CONFIG.REDIRECT_URI.split("http://")
+		arrY = arrX[1].split("/")
+		CONFIG.HOME = "http://" + arrY[0]
+	}
+	else {
+		arrX = CONFIG.REDIRECT_URI.split("https://")
+		arrY = arrX[1].split("/")
+		CONFIG.HOME = "https://" + arrY[0]
+	}
+
 	console.log("---------------------------")
 	return "done"
 }
 
 function launch_web_server() {
 
-	app.use(express.static('public'))
+	// app.use(express.static('public'))
 
 	app.use(session({
 		secret: process.env.SESSION_SECRET,
@@ -129,15 +148,15 @@ function launch_web_server() {
 
 	require('./routes.js')(app)
 
-	app.listen(config.PORT, function () {
-		console.log('App listening on port ' + config.PORT + "...");
+	app.listen(CONFIG.PORT, function () {
+		console.log('App listening on port ' + CONFIG.PORT + "...");
 	})
 }
 
 function lookup_bootstrap_val(key) {
 
 	// simple values where name of key in config.json === name of key in bootstrap_OUT.json
-	if (key === "PORT" || key === "OKTA_TENANT") {
+	if (key === "FAKE_USER_PASSWORD" || key === "PORT" || key === "OKTA_TENANT" || key === "REDIRECT_URI") {
 		if (bootstrap_obj[key] && bootstrap_obj[key] != "") {
 			return bootstrap_obj[key]
 		}
@@ -165,9 +184,12 @@ function lookup_bootstrap_val(key) {
 		}
 		else { return "" }
 	}
-	else if (key === "PORT") {
-		if (bootstrap_obj.PORT && bootstrap_obj.PORT != "") {
-			return bootstrap_obj.PORT
+	else if (key === "SILVER_USERNAME") {
+		if (bootstrap_obj.OKTA_USER_02 && bootstrap_obj.OKTA_USER_02 != "") {
+
+			var arr = bootstrap_obj.OKTA_USER_02.profile.login.split("@")
+
+			return arr[0]
 		}
 		else { return "" }
 	}

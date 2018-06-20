@@ -28,5 +28,303 @@
 				"description": "All solar system users"
 			}
 		}
+	},
+	"OKTA_GROUP_02": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:user_group",
+		"default": {
+			"profile": {
+				"name": "solar_system_users_planets {{TAG}}",
+				"description": "Solar system users with read access to /planets"
+			}
+		}
+	},
+	"OKTA_GROUP_03": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:user_group",
+		"default": {
+			"profile": {
+				"name": "solar_system_users_writers {{TAG}}",
+				"description": "Solar system users with write access to /moons"
+			}
+		}
+	},
+	"PORT": {
+		"saveToOutput": true,
+		"comment": "The port that your web app will be running on. Used to build the REDIRECT_URI and to launch the node express app.",
+		"objType": "string",
+		"default": "8080"
+	},
+	"REDIRECT_URI": {
+		"saveToOutput": true,
+		"comment": "The URL where your web app lives",
+		"objType": "string",
+		"default": "http://localhost:{{PORT}}/authorization-code/callback"
+	},
+	"OKTA_CLIENT": {
+		"saveToOutput": true,
+		"comment": "The client id that we are going to use for authentication and authorization vs. Okta",
+		"objType": "json",
+		"objectClass": "okta:client",
+		"default": {
+			"client_name": "solar_system_api_client {{TAG}}",
+			"client_uri": null,
+			"logo_uri": null,
+			"redirect_uris": [
+				"{{REDIRECT_URI}}"
+			],
+			"response_types": [
+				"code",
+				"token",
+				"id_token"
+			],
+			"grant_types": [
+				"authorization_code", "implicit"
+			],
+			"token_endpoint_auth_method": "client_secret_basic",
+			"application_type": "web"
+		},
+		"oktaEndpoint": "/oauth2/v1/clients",
+		"IDfieldName": "client_id",
+		"groups": [
+			"{{OKTA_GROUP_01.id}}",
+			"{{OKTA_GROUP_02.id}}",
+			"{{OKTA_GROUP_03.id}}"
+		]
+	},
+	"FAKE_USER_PASSWORD": {
+		"saveToOutput": true,
+		"hint": "This password will be used for all fake users.",
+		"objType": "string",
+		"default": "{{GENERATE_PASSWORD}}"
+	},
+	"FAKE_USER_DOMAIN": {
+		"saveToOutput": false,
+		"objType": "string",
+		"hint": "A fake domain used in generating fake userIds.",
+		"default": "oktademo.com"
+	},
+	"FAKE_USER_RECOVERY_QUESTION": {
+		"saveToOutput": false,
+		"objType": "string",
+		"hint": "A recovery question for fake users",
+		"default": "What company leads the identity management space?"
+	},
+	"FAKE_USER_RECOVERY_ANSWER": {
+		"saveToOutput": false,
+		"objType": "string",
+		"hint": "Answer to recovery question for fake users",
+		"default": "Okta"
+	},
+	"OKTA_USER_01": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:user",
+		"default": {
+			"profile": {
+				"firstName": "ed",
+				"lastName": "{{GENERATE_LASTNAME}}",
+				"email": "ed.{{LASTNAME}}@{{FAKE_USER_DOMAIN}}",
+				"login": "ed.{{LASTNAME}}@{{FAKE_USER_DOMAIN}}",
+				"secondEmail": "{{SECOND_EMAIL}}"
+			},
+			"credentials": {
+				"password" : {
+					"value": "{{FAKE_USER_PASSWORD}}"
+				},
+				"recovery_question": {
+					"question": "{{FAKE_USER_RECOVERY_QUESTION}}",
+					"answer": "{{FAKE_USER_RECOVERY_ANSWER}}"
+				}
+			},
+			"groupIds": [
+				"{{OKTA_GROUP_01.id}}"
+			]
+		}
+	},
+	"OKTA_USER_02": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:user",
+		"default": {
+			"profile": {
+				"firstName": "sally",
+				"lastName": "{{GENERATE_LASTNAME}}",
+				"email": "sally.{{LASTNAME}}@{{FAKE_USER_DOMAIN}}",
+				"login": "sally.{{LASTNAME}}@{{FAKE_USER_DOMAIN}}",
+				"secondEmail": "{{SECOND_EMAIL}}"
+			},
+			"credentials": {
+				"password" : {
+					"value": "{{FAKE_USER_PASSWORD}}"
+				},
+				"recovery_question": {
+					"question": "{{FAKE_USER_RECOVERY_QUESTION}}",
+					"answer": "{{FAKE_USER_RECOVERY_ANSWER}}"
+				}
+			},
+			"groupIds": [
+				"{{OKTA_GROUP_01.id}}", "{{OKTA_GROUP_02.id}}"
+			]
+		}
+	},
+	"OKTA_USER_03": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:user",
+		"default": {
+			"profile": {
+				"firstName": "neil",
+				"lastName": "{{GENERATE_LASTNAME}}",
+				"email": "neil.{{LASTNAME}}@{{FAKE_USER_DOMAIN}}",
+				"login": "neil.{{LASTNAME}}@{{FAKE_USER_DOMAIN}}",
+				"secondEmail": "{{SECOND_EMAIL}}"
+			},
+			"credentials": {
+				"password" : {
+					"value": "{{FAKE_USER_PASSWORD}}"
+				},
+				"recovery_question": {
+					"question": "{{FAKE_USER_RECOVERY_QUESTION}}",
+					"answer": "{{FAKE_USER_RECOVERY_ANSWER}}"
+				}
+			},
+			"groupIds": [
+				"{{OKTA_GROUP_01.id}}", "{{OKTA_GROUP_02.id}}", "{{OKTA_GROUP_03.id}}"
+			]
+		}
+	},
+	"OKTA_AUTHORIZATION_SERVER": {
+		"saveToOutput": true,
+		"comment": "The authorization server that we are going to use for authentication and authorization vs. Okta",
+		"objType": "json",
+		"objectClass": "okta:authz_server",
+		"default": {
+			"name": "solar_system_api_auth_server {{TAG}}",
+			"audiences": [
+				"api://default"
+			]
+		},
+		"oktaEndpoint": "/api/v1/authorizationServers"
+	},
+	"SILVER_SCOPE": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:scope",
+		"default": {
+			"description": "silver level access",
+			"name": "http://myapp.com/scp/silver"
+		},
+		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AUTHORIZATION_SERVER.id}}/scopes"
+	},
+	"GOLD_SCOPE": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:scope",
+		"default": {
+			"description": "gold level access",
+			"name": "http://myapp.com/scp/gold"
+		},
+		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AUTHORIZATION_SERVER.id}}/scopes"
+	},
+	"ACCESS_POLICY": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:oauth_policy",
+		"default": {
+			"type": "OAUTH_AUTHORIZATION_POLICY",
+			"status": "ACTIVE",
+			"name": "Solar system API access policy",
+			"description": "Solar system API access policy",
+			"priority": 1,
+			"conditions": {
+				"clients": {
+					"include": [
+						"{{OKTA_CLIENT.client_id}}"
+					]
+				}
+			}
+		},
+		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AUTHORIZATION_SERVER.id}}/policies"
+	},
+	"SILVER_RULE": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:rule",
+		"default": {
+			"type": "RESOURCE_ACCESS",
+			"status": "ACTIVE",
+			"name": "silver access rule",
+			"priority": 1,
+			"conditions": {
+				"people": {
+					"groups": {
+						"include": [
+							"{{OKTA_GROUP_02.id}}"
+						]
+					}
+				},
+				"grantTypes": {
+					"include": [
+						"implicit",
+						"authorization_code"
+					]
+				},
+				"scopes": {
+					"include": [
+						"{{SILVER_SCOPE.name}}", "openid"
+					]
+				}
+			},
+			"actions": {
+				"token": {
+					"accessTokenLifetimeMinutes": 60,
+					"refreshTokenLifetimeMinutes": 0,
+					"refreshTokenWindowMinutes": 10080
+				}
+			}
+		},
+		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AUTHORIZATION_SERVER.id}}/policies/{{ACCESS_POLICY.id}}/rules"
+	},
+	"GOLD_RULE": {
+		"saveToOutput": true,
+		"objType": "json",
+		"objectClass": "okta:rule",
+		"default": {
+			"type": "RESOURCE_ACCESS",
+			"status": "ACTIVE",
+			"name": "gold access rule",
+			"priority": 1,
+			"conditions": {
+				"people": {
+					"groups": {
+						"include": [
+							"{{OKTA_GROUP_03.id}}"
+						]
+					}
+				},
+				"grantTypes": {
+					"include": [
+						"implicit",
+						"authorization_code"
+					]
+				},
+				"scopes": {
+					"include": [
+						"{{GOLD_SCOPE.name}}", "openid"
+					]
+				}
+			},
+			"actions": {
+				"token": {
+					"accessTokenLifetimeMinutes": 60,
+					"refreshTokenLifetimeMinutes": 0,
+					"refreshTokenWindowMinutes": 10080
+				}
+			}
+		},
+		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AUTHORIZATION_SERVER.id}}/policies/{{ACCESS_POLICY.id}}/rules"
 	}
 }

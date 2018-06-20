@@ -3,5 +3,9 @@
 	"OKTA_CLIENT_ID": "",
 	"OKTA_CLIENT_SECRET": "",
 	"OKTA_AUTH_SERVER_ID": "",
-	"PORT": ""
+	"PORT": "",
+	"REDIRECT_URI": "",
+	"SILVER_USERNAME": "",
+	"GOLD_USERNAME": "",
+	"FAKE_USER_PASSWORD": ""
 }

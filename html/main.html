@@ -189,7 +189,7 @@
 			if (error) { console.log("could not sign the user out."); }
 			else {
 				if (redirect_uri == "home") {
-					window.location = "/";
+					window.location = "{{HOME}}";
 				}
 				else {
 					location.reload(true);
@@ -198,28 +198,45 @@
 		});
 	}
 
+	// function redirectToOkta(level) {
+	// 	signout( function(error, status) {
+	// 		if (error) { console.log("could not sign the user out."); }
+	// 		else {
+	// 			console.log("signed the user out successfully.");
+
+	// 			var uri = '{{OKTA_OAUTH_PATH}}authorize?response_type=code id_token&client_id={{CLIENT_ID}}&redirect_uri={{redirect_uri}}'
+	// 			uri += '&state={{PARTNER}}';
+	// 			uri += '&nonce=' + getNonce();
+	// 			uri += '&prompt=login&scope=openid';
+
+	// 			if (level == "silver" || level == "gold") { uri += " http://myapp.com/scp/silver"; };
+
+	// 			if (level == "gold") { uri += " http://myapp.com/scp/gold"; }
+
+	// 			localStorage.setItem("authURI", uri);
+
+	// 			console.log("authn URI: " + uri);
+
+	// 			window.location = uri;
+	// 		}
+	// 	});
+	// }
+
 	function redirectToOkta(level) {
-		signout( function(error, status) {
-			if (error) { console.log("could not sign the user out."); }
-			else {
-				console.log("signed the user out successfully.");
+		var uri = '{{OKTA_OAUTH_PATH}}authorize?response_type=code id_token&client_id={{CLIENT_ID}}&redirect_uri={{redirect_uri}}'
+		uri += '&state={{PARTNER}}';
+		uri += '&nonce=' + getNonce();
+		uri += '&prompt=login&scope=openid';
 
-				var uri = '{{OKTA_OAUTH_PATH}}authorize?response_type=code id_token&client_id={{CLIENT_ID}}&redirect_uri={{redirect_uri}}'
-				uri += '&state=' + getNonce();
-				uri += '&nonce=' + getNonce();
-				uri += '&prompt=login&scope=openid';
+		if (level == "silver" || level == "gold") { uri += " http://myapp.com/scp/silver"; };
 
-				if (level == "silver" || level == "gold") { uri += " http://myapp.com/scp/silver"; };
+		if (level == "gold") { uri += " http://myapp.com/scp/gold"; }
 
-				if (level == "gold") { uri += " http://myapp.com/scp/gold"; }
+		localStorage.setItem("authURI", uri);
 
-				localStorage.setItem("authURI", uri);
+		console.log("authn URI: " + uri);
 
-				console.log("authn URI: " + uri);
-
-				window.location = uri;
-			}
-		});
+		window.location = uri;
 	}
 
 	function signout(callback) {
