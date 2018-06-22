@@ -32,7 +32,7 @@
 	<script>
 		var proxy_uris = {}
 
-		proxy_uris.mulesoft = "http://okta-solar-system.cloudhub.io"
+		proxy_uris.mulesoft = "http://okta-solar.cloudhub.io"
 
 	</script>
 
@@ -64,12 +64,11 @@
 		function log_out() {
 			signIn.session.close(function (err) {
 				if (err) {
-					// console.log(err)
+					// errors usually happen bc Okta session does not exist
 					location.reload(true)
 				}
 				console.log("successfully signed user out.")
-				location.reload(true);
-
+				location.reload(true)
 			})
 		}
 
@@ -81,7 +80,7 @@
 				gateway = localStorage.getItem("gateway")
 
 				$("#gateway").html(gateway)
-				$("#proxy_uri").html(proxy_uris[gateway])
+				$(".proxy_uri").html(proxy_uris[gateway])
 			}
 			else {
 				$("#gateway").html("[none]")
@@ -98,8 +97,6 @@
 			if (window.location.hash) {
 				var urlParams = getParams(window.location.hash.substring(1));
 
-				// var partner = "{{partner}}";
-
 				console.log("the url params are: ");
 
 				// show the url parameters nicely in the console
@@ -108,19 +105,11 @@
 				}
 
 				// if we have an authorization code, send it to the server
-				// immediately to set an access code on the server
+				// immediately to get an access token and id token from Okta
+				// The tokens will be sent to the server, but the server side app
+				// will also send them down to the browser for demo purposes
 				if (urlParams.code) {
 					getAccessToken(urlParams.code)
-				}
-
-				// if (urlParams.id_token) {
-				// 	var id_token = urlParams.id_token;
-				// 	localStorage.setItem("id_token", id_token);
-				// }
-
-				if (urlParams.state) {
-					var state = urlParams.state;
-					localStorage.setItem("state", state);
 				}
 			}
 		}
@@ -134,45 +123,6 @@
 	</script>
 
 	<script>
-
-	function checkForOktaSession() {
-
-		// Initialize the Okta widget
-		var oktaSignIn = new OktaSignIn({
-			baseUrl: '{{OKTA_TENANT}}'
-		});
-
-		// Check for an Okta session
-		oktaSignIn.session.exists(function (exists) {
-			if (exists) {
-				console.log("there is an active Okta session.");
-
-				oktaSignIn.session.get(function (res) {
-					$.ajax({
-						type: "GET",
-						dataType: 'json',
-						url: "{{OKTA_TENANT}}/api/v1/users/" + res.userId,
-
-						xhrFields: {
-							withCredentials: true
-						},
-						success: function (data) {
-							console.log("the given_name is: " + data.profile.firstName);
-						},
-						error: function (textStatus, errorThrown) {
-							// console.log('error retrieving session: ' + JSON.stringify(textStatus));
-							// console.log(errorThrown);
-						},
-						async: true
-					});
-				});
-			}
-			else {
-				console.log("there is not an active Okta session.");
-				console.log("-------------------------------");
-			}
-		});
-	}
 
 	function getParams(hash) {
 
@@ -197,8 +147,6 @@
 			contentType: 'application/json',
 			url: '/getAccessToken',
 			success: function(data) {
-				// console.log(data);
-
 				var obj = JSON.parse(data)
 
 				console.log("access token:")
@@ -207,29 +155,26 @@
 				console.log("id token:")
 				console.log(obj.id_token)
 
-				// console.log("at_decoded")
-				// console.dir(obj.access_token_decoded)
-
 				$("#access_token_decoded").html("<pre>" + JSON.stringify(obj.access_token_decoded, null, 1) + "</pre>")
 
 				$("#id_token_decoded").html("<pre>" + JSON.stringify(obj.id_token_decoded, null, 1) + "</pre>")
 
-				$("#introspectResults").show();
+				// $("#introspectResults").show();
 
-				$("#successfulAuth").show();
+				// $("#successfulAuth").show();
 
-				$("#getStarted").hide();
+				// $("#getStarted").hide();
 			}
 		});
 	}
 
-	// send the authorization code and the requested endpoint
-	// to the server-side app
+	// make a request to the API gateway
+	// request will go to app first so the app can include the access token
 	function getData(endpoint) {
 
 		$.ajax({
 			type: 'POST',
-			data: JSON.stringify({ "endpoint": endpoint }),
+			data: JSON.stringify({ "endpoint": endpoint, "gateway": localStorage.getItem("gateway") }),
 			contentType: 'application/json',
 			url: '/getData',
 			success: function(data) {
@@ -237,66 +182,25 @@
 
 				console.log("the results are: " + data);
 
-				//TODO: parse this response for a status code
-
 				$("#results_" + endpoint).html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>");
 			}
-		});
+		})
 	}
 
 	function getNonce() {
-	  var text = "";
-	  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		var text = "";
+		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-	  for (var i = 0; i < 12; i++)
-	    text += possible.charAt(Math.floor(Math.random() * possible.length));
+		for (var i = 0; i < 12; i++)
+			text += possible.charAt(Math.floor(Math.random() * possible.length));
 
-	  return text;
+		return text;
 	}
-
-	function killSession(redirect_uri) {
-		localStorage.clear();
-		signout(function(error, status) {
-			if (error) { console.log("could not sign the user out."); }
-			else {
-				if (redirect_uri == "home") {
-					window.location = "{{HOME}}";
-				}
-				else {
-					location.reload(true);
-				}
-			}
-		});
-	}
-
-	// function redirectToOkta(level) {
-	// 	signout( function(error, status) {
-	// 		if (error) { console.log("could not sign the user out."); }
-	// 		else {
-	// 			console.log("signed the user out successfully.");
-
-	// 			var uri = '{{OKTA_OAUTH_PATH}}authorize?response_type=code id_token&client_id={{CLIENT_ID}}&redirect_uri={{redirect_uri}}'
-	// 			uri += '&state={{PARTNER}}';
-	// 			uri += '&nonce=' + getNonce();
-	// 			uri += '&prompt=login&scope=openid';
-
-	// 			if (level == "silver" || level == "gold") { uri += " http://myapp.com/scp/silver"; };
-
-	// 			if (level == "gold") { uri += " http://myapp.com/scp/gold"; }
-
-	// 			localStorage.setItem("authURI", uri);
-
-	// 			console.log("authn URI: " + uri);
-
-	// 			window.location = uri;
-	// 		}
-	// 	});
-	// }
 
 	function redirectToOkta(level) {
-		// var uri = '{{OKTA_OAUTH_PATH}}authorize?response_type=code id_token&client_id={{OKTA_CLIENT_ID}}&redirect_uri={{REDIRECT_URI}}'
-		var uri = '{{OKTA_OAUTH_PATH}}authorize?response_type=code&client_id={{OKTA_CLIENT_ID}}&redirect_uri={{REDIRECT_URI}}&response_mode=fragment'
-		uri += '&state=' + localStorage.getItem("partner")
+		var uri = '{{OKTA_AZ_SERVER_ISSUER}}/v1/authorize?response_type=code&client_id={{OKTA_CLIENT_ID}}&redirect_uri={{REDIRECT_URI}}&response_mode=fragment'
+
+		uri += '&state=' + localStorage.getItem("gateway")
 		uri += '&nonce=' + getNonce();
 		uri += '&prompt=login&scope=openid';
 
@@ -309,39 +213,6 @@
 		console.log("authn URI: " + uri);
 
 		window.location = uri;
-	}
-
-	function signout(callback) {
-		localStorage.clear();
-
-		console.log("attempting to sign out...");
-
-		// kill local session
-		$.ajax({
-			type: 'POST',
-			contentType: 'application/json',
-			url: '/killSession',
-			success: function() {
-				// kill okta session
-				$.ajax({
-					type: "DELETE",
-					dataType: 'json',
-					url: "{{OKTA_TENANT}}/api/v1/sessions/me",
-					xhrFields: {
-						withCredentials: true
-					},
-					success: function (data) {
-						return callback(null, "success");
-					},
-					error: function (textStatus, errorThrown) {
-						// console.log('error deleting session: ' + JSON.stringify(textStatus));
-						// console.log(errorThrown);
-						return callback(null, "success");
-					},
-					async: true
-				});
-			}
-		});
 	}
 
 	</script>
@@ -412,13 +283,6 @@
 				<p><i>The currently logged-in Okta user is: <span id = "username" style = "font-weight: bold"></span></i></p>
 				<p><i>The current gateway or proxy is: <span id = "gateway" style = "font-weight: bold"></span></i></p>
 
-<!-- 				<p>The user with silver-level access is:
-					<ul>
-						<li>{{SILVER_USERNAME}}</li>
-						<li>{{FAKE_USER_PASSWORD}}</li>
-					</ul>
-				</p> -->
-
 				<div class = "panel panel-default">
 					<div class = "panel-heading">
 						SILVER Access: A list of the planets
@@ -435,7 +299,7 @@
 							</div>
 						</div>
 
-						<span id = "planetsLink">proxy endpoint: <span id = "proxy_uri"></span>/planets</span>
+						<span id = "planetsLink">proxy endpoint: <span class = "proxy_uri"></span>/planets</span>
 
 						<div style= "text-align: center; padding-top: 10px">
 							<button type="button" class="btn btn-info" onclick="getData('planets')">show me the planets!</button>
@@ -449,9 +313,38 @@
 						</div>
 					</div>
 				</div>
-<!-- Thanks for trying out the Okta API center.
- -->
-			</div>
+
+				<div class = "panel panel-warning">
+					<div class = "panel-heading">
+						GOLD Access: A list of (selected) moons
+					</div>
+					<div class = "panel-body">
+						<div class = "row">
+							<div class = "col-sm-6">
+								<p>username: {{GOLD_USERNAME}}
+								<br>
+								password: {{FAKE_USER_PASSWORD}}</p>
+							</div>
+							<div class = "col-sm-6" style="text-align: center;">
+								<button type="button" class="btn btn-warning" onclick="redirectToOkta('gold')">authenticate</button>
+							</div>
+						</div>
+						<span id = "moonsLink">proxy endpoint: <span class = "proxy_uri"></span>/moons</span>
+
+						<div style= "text-align: center; padding-top: 10px">
+							<button type="button" class="btn btn-info" onclick="getData('moons')">show me some moons!</button>
+						</div>
+
+						<div class="panel panel-primary" style ="margin-top:10px">
+							<div class="panel-heading">
+								<h3 class="panel-title">Moons</h3>
+							</div>
+							<div class="panel-body" id = "results_moons"></div>
+						</div>
+
+					</div>
+				</div>
+			</div> <!-- end left col -->
 
 			<div class="col-md-6">
 

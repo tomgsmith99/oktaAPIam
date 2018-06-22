@@ -2,7 +2,7 @@
 	"OKTA_TENANT": "",
 	"OKTA_CLIENT_ID": "",
 	"OKTA_CLIENT_SECRET": "",
-	"OKTA_AUTH_SERVER_ID": "",
+	"OKTA_AZ_SERVER_ISSUER": "",
 	"PORT": "",
 	"REDIRECT_URI": "",
 	"SILVER_USERNAME": "",

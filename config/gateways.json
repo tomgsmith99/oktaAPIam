@@ -17,7 +17,16 @@
 	},
 	"mulesoft": {
 		"proxy_uri": "http://okta-solar-system.cloudhub.io",
-		"display_name": "Mulesoft"
+		"display_name": "Mulesoft",
+		"settings": {
+			"Client Registration URL": "{{OKTA_TENANT}}/oauth/v2/clients",
+			"Authorization Header": "SSWS {{OKTA_API_TOKEN}}",
+			"Client ID": "{{OKTA_CLIENT_ID}}",
+			"Client Secret": "{{OKTA_CLIENT_SECRET}}",
+			"Authorize URL": "{{OKTA_AZ_SERVER_ISSUER}}/v1/authorize",
+			"Token URL": "{{OKTA_AZ_SERVER_ISSUER}}/v1/token",
+			"Token Introspection URL": "{{OKTA_AZ_SERVER_ISSUER}}/v1/introspect"
+		}
 	},
 	"tyk": {
 		"proxy_uri": "",

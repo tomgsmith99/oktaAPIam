@@ -12,7 +12,8 @@ var session = require("express-session")
 //*******************************************/
 
 const oktaJwtVerifier = new OktaJwtVerifier({
-	issuer: CONFIG.OKTA_AS_PATH_BASE
+	// issuer: CONFIG.OKTA_AS_PATH_BASE
+	issuer: CONFIG.OKTA_AZ_SERVER_ISSUER
 })
 
 module.exports = function (app) {
@@ -20,8 +21,6 @@ module.exports = function (app) {
 	app.get('/', function(req, res, next) {
 
 		fs.readFile('./html/index.html', 'utf8', (error, page) => {
-
-			// console.log("the gateway is: " + req.session.partner)
 
 			evaluate_vars(page, (error, page) => {
 				if (error) { throw new Error(error) }
@@ -99,7 +98,8 @@ module.exports = function (app) {
 
 		var options = {
 			method: 'POST',
-			url: CONFIG.OKTA_OAUTH_PATH + "token",
+//			url: CONFIG.OKTA_OAUTH_PATH + "token",
+			url: CONFIG.OKTA_AZ_SERVER_ISSUER + "/v1/token",
 			qs: {
 				grant_type: 'authorization_code',
 				code: code,
@@ -197,11 +197,17 @@ module.exports = function (app) {
 
 		console.log("the requested endpoint is: " + endpoint);
 
+		console.log("the gateway is: " + req.body.gateway)
+
 		console.log("the access_token token is: \n" + req.session.access_token + "\n");
 
 		// send the access token to the requested API endpoint
 
-		var url = GATEWAYS[req.session.partner].proxy_uri + "/" + req.body.endpoint
+		var url = CONFIG.GATEWAYS[req.body.gateway].proxy_uri + "/" + req.body.endpoint
+
+
+		console.log("the config file is: ")
+		console.dir(CONFIG)
 
 		var options = { method: 'GET',
 			url: url,
@@ -233,63 +239,63 @@ module.exports = function (app) {
 		})
 	});
 
-	function getPage(partner, solutionType, callback) {
+	// function getPage(partner, solutionType, callback) {
 
-		fs.readFile('./html/main.html', 'utf8', (error, page) => {
+	// 	fs.readFile('./html/main.html', 'utf8', (error, page) => {
 
-			if (error) { throw new Error(error) }
+	// 		if (error) { throw new Error(error) }
 
-			page = page.replace(/{{PARTNER}}/g, partner)
+	// 		page = page.replace(/{{PARTNER}}/g, partner)
 
-			fs.readFile('./html/' + partner + '.html', 'utf8', (error, partner_content) => {
+	// 		fs.readFile('./html/' + partner + '.html', 'utf8', (error, partner_content) => {
 
-				if (error) { throw new Error(error) }
+	// 			if (error) { throw new Error(error) }
 
-				page = page.replace(/{{title}}/g, getTitle(partner));
+	// 			page = page.replace(/{{title}}/g, getTitle(partner));
 
-				page = page.replace(/{{HOME}}/g, CONFIG.HOME);
-				page = page.replace(/{{OKTA_TENANT}}/g, CONFIG.OKTA_TENANT);
-				page = page.replace(/{{OKTA_OAUTH_PATH}}/g, CONFIG.OKTA_OAUTH_PATH);
-				page = page.replace(/{{CLIENT_ID}}/g, CONFIG.OKTA_CLIENT_ID);
-				page = page.replace(/{{redirect_uri}}/g, CONFIG.REDIRECT_URI);
-				page = page.replace(/{{partner}}/g, partner);
-				page = page.replace(/{{DISPLAY_NAME}}/g, GATEWAYS[partner].display_name)
-				// page = page.replace(/{{partner_links}}/g, getLinks(partner));
-				page = page.replace(/{{partner_content}}/g, partner_content);
+	// 			page = page.replace(/{{HOME}}/g, CONFIG.HOME);
+	// 			page = page.replace(/{{OKTA_TENANT}}/g, CONFIG.OKTA_TENANT);
+	// 			page = page.replace(/{{OKTA_OAUTH_PATH}}/g, CONFIG.OKTA_OAUTH_PATH);
+	// 			page = page.replace(/{{CLIENT_ID}}/g, CONFIG.OKTA_CLIENT_ID);
+	// 			page = page.replace(/{{redirect_uri}}/g, CONFIG.REDIRECT_URI);
+	// 			page = page.replace(/{{partner}}/g, partner);
+	// 			page = page.replace(/{{DISPLAY_NAME}}/g, GATEWAYS[partner].display_name)
+	// 			// page = page.replace(/{{partner_links}}/g, getLinks(partner));
+	// 			page = page.replace(/{{partner_content}}/g, partner_content);
 
-				if (solutionType == "apiAM") {
-					fs.readFile('./html/left_col.html', 'utf8', (error, left_col) => {
+	// 			if (solutionType == "apiAM") {
+	// 				fs.readFile('./html/left_col.html', 'utf8', (error, left_col) => {
 
-						page = page.replace(/{{left_col}}/g, left_col)
+	// 					page = page.replace(/{{left_col}}/g, left_col)
 
-						fs.readFile('./html/right_col.html', 'utf8', (error, right_col) => {
+	// 					fs.readFile('./html/right_col.html', 'utf8', (error, right_col) => {
 
-							if (error) { return callback(error) }
+	// 						if (error) { return callback(error) }
 
-							right_col = right_col.replace(/{{SILVER_USERNAME_SHORT}}/g, CONFIG.SILVER_USERNAME)
-							right_col = right_col.replace(/{{FAKE_USER_PASSWORD}}/g, CONFIG.FAKE_USER_PASSWORD)
+	// 						right_col = right_col.replace(/{{SILVER_USERNAME_SHORT}}/g, CONFIG.SILVER_USERNAME)
+	// 						right_col = right_col.replace(/{{FAKE_USER_PASSWORD}}/g, CONFIG.FAKE_USER_PASSWORD)
 
-							page = page.replace(/{{right_col}}/g, right_col)
-							page = page.replace(/{{proxy_uri}}/g, GATEWAYS[partner].proxy_uri)
+	// 						page = page.replace(/{{right_col}}/g, right_col)
+	// 						page = page.replace(/{{proxy_uri}}/g, GATEWAYS[partner].proxy_uri)
 
-							return callback(null, page);
-						});
-					});
-				}
-				else {
-					page = page.replace(/{{left_col}}/g, "")
+	// 						return callback(null, page);
+	// 					});
+	// 				});
+	// 			}
+	// 			else {
+	// 				page = page.replace(/{{left_col}}/g, "")
 
-					fs.readFile('./html/right_col/' + partner + '.html', 'utf8', (error, right_col) => {
+	// 				fs.readFile('./html/right_col/' + partner + '.html', 'utf8', (error, right_col) => {
 
-						page = page.replace(/{{right_col}}/g, right_col)
-						page = page.replace(/{{proxy_uri}}/g, getProxyURI(partner));
+	// 					page = page.replace(/{{right_col}}/g, right_col)
+	// 					page = page.replace(/{{proxy_uri}}/g, getProxyURI(partner));
 
-						return callback(null, page);
-					});
-				}
-			});
-		});
-	}
+	// 					return callback(null, page);
+	// 				});
+	// 			}
+	// 		});
+	// 	});
+	// }
 
 	function getClientSecret(partner) {
 		if (typeof _CFG[partner.toUpperCase()].CLIENT_SECRET === 'undefined') {

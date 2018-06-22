@@ -8,7 +8,7 @@
 		"objType": "string"
 	},
 	"TAG": {
-		"comment": "a unique string to help identify objects created by this bootstrap session",
+		"hint": "this is a unique string to help identify objects created by this bootstrap session",
 		"saveToOutput": true,
 		"default": "{{GENERATE_TAG}}",
 		"objType": "string"
@@ -18,7 +18,7 @@
 		"hint": "This email address will be used as the secondary email address (not userid) for all fake users. Use a valid email address if you want to be able to do things like reset the password for fake users.",
 		"objType": "string"
 	},
-	"OKTA_GROUP_01": {
+	"BRONZE_GROUP": {
 		"saveToOutput": true,
 		"objType": "json",
 		"objectClass": "okta:user_group",
@@ -29,7 +29,7 @@
 			}
 		}
 	},
-	"OKTA_GROUP_02": {
+	"SILVER_GROUP": {
 		"saveToOutput": true,
 		"objType": "json",
 		"objectClass": "okta:user_group",
@@ -40,7 +40,7 @@
 			}
 		}
 	},
-	"OKTA_GROUP_03": {
+	"GOLD_GROUP": {
 		"saveToOutput": true,
 		"objType": "json",
 		"objectClass": "okta:user_group",
@@ -61,7 +61,7 @@
 		"saveToOutput": true,
 		"comment": "The URL where your web app lives",
 		"objType": "string",
-		"default": "http://localhost:{{PORT}}/authorization-code/callback"
+		"default": "http://localhost:{{PORT}}"
 	},
 	"OKTA_CLIENT": {
 		"saveToOutput": true,
@@ -89,10 +89,20 @@
 		"oktaEndpoint": "/oauth2/v1/clients",
 		"IDfieldName": "client_id",
 		"groups": [
-			"{{OKTA_GROUP_01.id}}",
-			"{{OKTA_GROUP_02.id}}",
-			"{{OKTA_GROUP_03.id}}"
+			"{{BRONZE_GROUP.id}}",
+			"{{SILVER_GROUP.id}}",
+			"{{GOLD_GROUP.id}}"
 		]
+	},
+	"OKTA_CLIENT_ID": {
+		"saveToOutput": true,
+		"objType": "string",
+		"default": "{{OKTA_CLIENT.client_id}}"
+	},
+	"OKTA_CLIENT_SECRET": {
+		"saveToOutput": true,
+		"objType": "string",
+		"default": "{{OKTA_CLIENT.client_secret}}"
 	},
 	"FAKE_USER_PASSWORD": {
 		"saveToOutput": true,
@@ -118,7 +128,7 @@
 		"hint": "Answer to recovery question for fake users",
 		"default": "Okta"
 	},
-	"OKTA_USER_01": {
+	"BRONZE_USER": {
 		"saveToOutput": true,
 		"objType": "json",
 		"objectClass": "okta:user",
@@ -140,11 +150,11 @@
 				}
 			},
 			"groupIds": [
-				"{{OKTA_GROUP_01.id}}"
+				"{{BRONZE_GROUP.id}}"
 			]
 		}
 	},
-	"OKTA_USER_02": {
+	"SILVER_USER": {
 		"saveToOutput": true,
 		"objType": "json",
 		"objectClass": "okta:user",
@@ -166,11 +176,11 @@
 				}
 			},
 			"groupIds": [
-				"{{OKTA_GROUP_01.id}}", "{{OKTA_GROUP_02.id}}"
+				"{{BRONZE_GROUP.id}}", "{{SILVER_GROUP.id}}"
 			]
 		}
 	},
-	"OKTA_USER_03": {
+	"GOLD_USER": {
 		"saveToOutput": true,
 		"objType": "json",
 		"objectClass": "okta:user",
@@ -192,11 +202,11 @@
 				}
 			},
 			"groupIds": [
-				"{{OKTA_GROUP_01.id}}", "{{OKTA_GROUP_02.id}}", "{{OKTA_GROUP_03.id}}"
+				"{{BRONZE_GROUP.id}}", "{{SILVER_GROUP.id}}", "{{GOLD_GROUP.id}}"
 			]
 		}
 	},
-	"OKTA_AUTHORIZATION_SERVER": {
+	"OKTA_AZ_SERVER": {
 		"saveToOutput": true,
 		"comment": "The authorization server that we are going to use for authentication and authorization vs. Okta",
 		"objType": "json",
@@ -209,6 +219,16 @@
 		},
 		"oktaEndpoint": "/api/v1/authorizationServers"
 	},
+	"OKTA_AZ_SERVER_ID": {
+		"saveToOutput": false,
+		"objType": "string",
+		"default": "{{OKTA_AZ_SERVER.id}}"
+	},
+	"OKTA_AZ_SERVER_ISSUER": {
+		"saveToOutput": true,
+		"objType": "string",
+		"default": "{{OKTA_AZ_SERVER.issuer}}"
+	},
 	"SILVER_SCOPE": {
 		"saveToOutput": true,
 		"objType": "json",
@@ -217,7 +237,7 @@
 			"description": "silver level access",
 			"name": "http://myapp.com/scp/silver"
 		},
-		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AUTHORIZATION_SERVER.id}}/scopes"
+		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AZ_SERVER_ID}}/scopes"
 	},
 	"GOLD_SCOPE": {
 		"saveToOutput": true,
@@ -227,7 +247,7 @@
 			"description": "gold level access",
 			"name": "http://myapp.com/scp/gold"
 		},
-		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AUTHORIZATION_SERVER.id}}/scopes"
+		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AZ_SERVER_ID}}/scopes"
 	},
 	"ACCESS_POLICY": {
 		"saveToOutput": true,
@@ -242,12 +262,12 @@
 			"conditions": {
 				"clients": {
 					"include": [
-						"{{OKTA_CLIENT.client_id}}"
+						"{{OKTA_CLIENT_ID}}"
 					]
 				}
 			}
 		},
-		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AUTHORIZATION_SERVER.id}}/policies"
+		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AZ_SERVER_ID}}/policies"
 	},
 	"SILVER_RULE": {
 		"saveToOutput": true,
@@ -262,7 +282,7 @@
 				"people": {
 					"groups": {
 						"include": [
-							"{{OKTA_GROUP_02.id}}"
+							"{{SILVER_GROUP.id}}"
 						]
 					}
 				},
@@ -286,7 +306,7 @@
 				}
 			}
 		},
-		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AUTHORIZATION_SERVER.id}}/policies/{{ACCESS_POLICY.id}}/rules"
+		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AZ_SERVER_ID}}/policies/{{ACCESS_POLICY.id}}/rules"
 	},
 	"GOLD_RULE": {
 		"saveToOutput": true,
@@ -301,7 +321,7 @@
 				"people": {
 					"groups": {
 						"include": [
-							"{{OKTA_GROUP_03.id}}"
+							"{{GOLD_GROUP.id}}"
 						]
 					}
 				},
@@ -325,6 +345,6 @@
 				}
 			}
 		},
-		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AUTHORIZATION_SERVER.id}}/policies/{{ACCESS_POLICY.id}}/rules"
+		"oktaEndpoint": "/api/v1/authorizationServers/{{OKTA_AZ_SERVER_ID}}/policies/{{ACCESS_POLICY.id}}/rules"
 	}
 }

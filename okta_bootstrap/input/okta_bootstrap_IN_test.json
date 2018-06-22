@@ -1,32 +1,14 @@
 {
-	"OKTA_TENANT": {
-		"hint": "please enter in this format: https://dev-123456.oktapreview.com",
+	"PORT": {
 		"saveToOutput": true,
-		"objType": "string"
+		"comment": "The port that your web app will be running on. Used to build the REDIRECT_URI and to launch the node express app.",
+		"objType": "string",
+		"default": "8080"
 	},
-	"OKTA_API_TOKEN": {
-		"objType": "string"
-	},
-	"TAG": {
-		"comment": "a unique string to help identify objects created by this bootstrap session",
+	"REDIRECT_URI": {
 		"saveToOutput": true,
-		"default": "{{GENERATE_TAG}}",
-		"objType": "string"
-	},
-	"SECOND_EMAIL": {
-		"saveToOutput": true,
-		"hint": "This email address will be used as the secondary email address (not userid) for all fake users. Use a valid email address if you want to be able to do things like reset the password for fake users.",
-		"objType": "string"
-	},
-	"OKTA_GROUP_01": {
-		"saveToOutput": true,
-		"objType": "json",
-		"objectClass": "okta:user_group",
-		"default": {
-			"profile": {
-				"name": "solar_system_users {{TAG}}",
-				"description": "All solar system users"
-			}
-		}
+		"comment": "The URL where your web app lives",
+		"objType": "string",
+		"default": "http://localhost:{{PORT}}"
 	}
 }
